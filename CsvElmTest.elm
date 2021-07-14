@@ -46,7 +46,7 @@ init _ =
         |> List.map
             (\datensatz ->
                 Http.get
-                    { url = "https://users.informatik.uni-halle.de/~hinnebur/Lehre/InfoVis/U06/" ++ datensatz
+                    { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/" ++ datensatz
                     , expect = Http.expectString GotText
                     }
             )
@@ -60,7 +60,7 @@ init _ =
 
 liste : List String
 liste =
-    [ "DJ.csv", "NIKKEI.csv", "HANGSENG.csv", "DAX.csv", "BOVESPA.csv" ]
+    [ "cleansingWine.csv" ]
 
 
 csvString_to_data : String -> List ( String, Maybe Float )
