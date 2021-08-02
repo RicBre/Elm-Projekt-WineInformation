@@ -29,11 +29,12 @@ type Model
     | Loading
     | Success (List String)
 
- 
+
 type NewModel
     = Loading2
-    | List Data   
-    
+    | List Data
+
+
 type Data
     = Failure2
     | Success2 String
@@ -63,7 +64,7 @@ liste =
     [ "cleansingWine.csv" ]
 
 
-csvString_to_data : String -> List ( String, Maybe Float )
+csvString_to_data : String -> List ( String, Maybe Float, String )
 csvString_to_data csvRaw =
     Csv.parse csvRaw
         |> Csv.Decode.decodeCsv decodeStockDay
@@ -71,20 +72,23 @@ csvString_to_data csvRaw =
         |> Maybe.withDefault []
 
 
-decodeStockDay : Csv.Decode.Decoder (( String, Maybe Float ) -> a) a
+decodeStockDay : Csv.Decode.Decoder (( String, Maybe Float, String ) -> a) a
 decodeStockDay =
-    Csv.Decode.map (\a b -> ( a, Just b ))
+    Csv.Decode.map (\a b c -> ( a, Just b, c ))
         (Csv.Decode.field "name" Ok
             |> Csv.Decode.andMap
-                (Csv.Decode.field "producer"
+                (Csv.Decode.field "price"
                     (String.toFloat >> Result.fromMaybe "error parsing string")
+                    |> Csv.Decode.andMap
+                        (Csv.Decode.field "producer" Ok
+                        )
                 )
         )
 
 
-umwandeln : List ( String, Maybe Float ) -> List ( String, String )
+umwandeln : List ( String, Maybe Float, String ) -> List ( String, String, String )
 umwandeln ganzerText =
-    List.map (\( a, b ) -> ( a, b |> Maybe.map String.fromFloat |> Maybe.withDefault "Kein Wert vorhanden" )) ganzerText
+    List.map (\( a, b, c ) -> ( a, b |> Maybe.map String.fromFloat |> Maybe.withDefault "Kein Wert vorhanden", c )) ganzerText
 
 
 umwandeln2 : List ( String, Maybe Float ) -> String
@@ -97,10 +101,10 @@ umwandeln2 ganzerText =
 -- UPDATE
 
 
-renderList : List ( String, String ) -> Html msg
+renderList : List ( String, String, String ) -> Html msg
 renderList lst =
     Html.ul []
-        (List.map (\( a, b ) -> Html.li [] [ text <| a ++ ", " ++ b ]) lst)
+        (List.map (\( a, b, c ) -> Html.li [] [ text <| a ++ ", " ++ b ++ ", " ++ c ]) lst)
 
 
 type Msg
@@ -117,7 +121,7 @@ update msg model =
 
                 Failure ->
                     []
-                
+
                 Loading ->
                     []
     in
