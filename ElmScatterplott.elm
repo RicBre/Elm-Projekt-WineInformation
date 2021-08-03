@@ -47,16 +47,16 @@ liste : List String
 liste =
     [ "cleansingWine.csv"]
 
-csvString_to_data : String -> List ( String, Maybe Float, String )
+csvString_to_data : String -> List (String, Maybe Float, Maybe Float)
 csvString_to_data csvRaw =
     Csv.parse csvRaw
         |> Csv.Decode.decodeCsv decodeStockDay
         |> Result.toMaybe
         |> Maybe.withDefault []
 
-decodeStockDay : Csv.Decode.Decoder (( String, Maybe Float, String ) -> a) a
+decodeStockDay : Csv.Decode.Decoder ((String, Maybe Float, String) -> a) a
 decodeStockDay =
-    Csv.Decode.map (\a b c -> ( a, Just b, c ))
+    Csv.Decode.map (\a b c -> ( a, Just b, Just c ))
         (Csv.Decode.field "name" Ok
             |> Csv.Decode.andMap
                 (Csv.Decode.field "price"
@@ -68,18 +68,17 @@ decodeStockDay =
                 )
         )
 
-umwandeln : List ( String, Maybe Float, String ) -> List ( String, String, String )
+umwandeln : List (String, Maybe Float, Maybe Float) -> List (String, String, String)
 umwandeln ganzerText =
     List.map (\( a, b, c ) -> ( a, b |> Maybe.map String.fromFloat |> Maybe.withDefault "Kein Wert vorhanden", c |> Maybe.map String.fromFloat |> Maybe.withDefault "Kein Wert vorhanden")) ganzerText
 
-umwandeln2 : List ( String, Maybe Float ) -> String
+umwandeln2 : List (String, Maybe Float, Maybe Float) -> String
 umwandeln2 ganzerText =
-    List.map Tuple.first ganzerText
-        |> String.concat
+    List.map(\(a, b, c) -> (a, b |> Maybe.withDefault 0.0, c |> Maybe.withDefault 0.0)) ganzerText
 
 
 -- UPDATE
-renderList : List ( String, String, String ) -> Html msg
+renderList : List (String, String, String) -> Html msg
 renderList lst =
     Html.ul []
         (List.map (\( a, b, c ) -> Html.li [] [ text <| a ++ ", " ++ b ++ ", " ++ c ]) lst)
