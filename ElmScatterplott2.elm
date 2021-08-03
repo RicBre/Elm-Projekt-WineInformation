@@ -30,6 +30,21 @@ type Model
   | Loading
   | Success (List String)
 
+type alias Status =
+    {
+        selectedWineType : WineType
+        selectedWineType2 : WineType
+    }
+
+mySelectedWineType =
+    Status.selectedWineType
+
+mySelectedWineTypeString =
+    wineTypeToString Status.selectedWineType
+
+-- Funktion mit csvString_to_data mySelectedWineTypeString 
+--Das sollten die Variablen in die csvString rein gegeben werden sollen
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( Loading
