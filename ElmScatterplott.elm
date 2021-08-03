@@ -27,7 +27,7 @@ main =
 type Model
   = Failure
   | Loading
-  | Success String
+  | Success (List String)
 
 init : () -> ( Model, Cmd Msg )
 init _ =
@@ -54,16 +54,17 @@ csvString_to_data csvRaw =
         |> Result.toMaybe
         |> Maybe.withDefault []
 
-decodeStockDay : Csv.Decode.Decoder ((String, Maybe Float, String) -> a) a
+decodeStockDay : Csv.Decode.Decoder (( String, Maybe Float, Maybe Float ) -> a) a
 decodeStockDay =
-    Csv.Decode.map (\a b c -> ( a, Just b, Just c ))
+    Csv.Decode.map (\a b c-> ( a, Just b, Just c ))
         (Csv.Decode.field "name" Ok
             |> Csv.Decode.andMap
-                (Csv.Decode.field "price"
+                (Csv.Decode.field "price" 
                     (String.toFloat >> Result.fromMaybe "error parsing string")
                     |> Csv.Decode.andMap
-                        (Csv.Decode.field "year" Ok
+                        (Csv.Decode.field "year" 
                             (String.toFloat >> Result.fromMaybe "error parsing string")
+                                
                         )
                 )
         )
@@ -72,7 +73,7 @@ umwandeln : List (String, Maybe Float, Maybe Float) -> List (String, String, Str
 umwandeln ganzerText =
     List.map (\( a, b, c ) -> ( a, b |> Maybe.map String.fromFloat |> Maybe.withDefault "Kein Wert vorhanden", c |> Maybe.map String.fromFloat |> Maybe.withDefault "Kein Wert vorhanden")) ganzerText
 
-umwandeln2 : List (String, Maybe Float, Maybe Float) -> String
+umwandeln2 : List (String, Maybe Float, Maybe Float) -> List (String, Float, Float)
 umwandeln2 ganzerText =
     List.map(\(a, b, c) -> (a, b |> Maybe.withDefault 0.0, c |> Maybe.withDefault 0.0)) ganzerText
 
@@ -81,7 +82,7 @@ umwandeln2 ganzerText =
 renderList : List (String, String, String) -> Html msg
 renderList lst =
     Html.ul []
-        (List.map (\( a, b, c ) -> Html.li [] [ text <| a ++ ", " ++ b ++ ", " ++ c ]) lst)
+        (List.map (\( a, b, c ) -> Html.li [] [ Html.text <| a ++ ", " ++ b ++ ", " ++ c ]) lst)
 
 
 type Msg
@@ -178,51 +179,42 @@ scatterplot model =
             }
     in
     svg [ viewBox 0 0 w h, TypedSvg.Attributes.width <| TypedSvg.Types.Percent 100, TypedSvg.Attributes.height <| TypedSvg.Types.Percent 100 ]
-        [ style [] 
-            [ 
-                TypedSvg.Core.text """
-                .point circle { stroke: rgba(0, 0, 0,0.4); fill: rgba(255, 255, 255,0.3); }
-                .point text { display: none; }
-                .point:hover circle { stroke: rgba(0, 0, 0,1.0); fill: rgb(118, 214, 78); }
-                .point:hover text { display: inline; }
-                """ 
-            ]
-        
-            , g[ transform [Translate (60) (390] ]
-            [
-                xAxis xValues
-                , text_
-                    [ x (Scale.convert xScaleLocal labelPositions.x)
-                    , y 35
-                    -- , fontFamily [ "Helvetica", "sans-serif" ]
-                    , fontSize (px 20)
-                    --, fontWeight FontWeightBold
-                ]
+        [ style [] [ TypedSvg.Core.text """
+            .point circle { stroke: rgba(0, 0, 0,0.4); fill: rgba(255, 255, 255,0.3); }
+            .point text { display: none; }
+            .point:hover circle { stroke: rgba(0, 0, 0,1.0); fill: rgb(118, 214, 78); }
+            .point:hover text { display: inline; }
+          """ ]
+        , g [ transform [ Translate 60 390 ] ]
+            [ xAxis xValues
+            , text_
+                [ x (Scale.convert xScaleLocal labelPositions.x)
+                , y 35
 
-                [ 
-                    TypedSvg.Core.text "Preis" 
-                ]
-            ]
-                
-            ,g[transform [Translate(60) (60)] ]
-            [
-                yAxis yValues
-                , text_
-                [   x -30
-                    , y -30
-                    -- , fontFamily [ "Helvetica", "sans-serif" ]
-                    , fontSize (px 20)
-                    --, fontWeight FontWeightBold
-                ]
+                -- , fontFamily [ "Helvetica", "sans-serif" ]
+                , fontSize (px 20)
 
-                [ 
-                    TypedSvg.Core.text "Jahr" 
+                --, fontWeight FontWeightBold
                 ]
+                [ TypedSvg.Core.text "Preis" ]
             ]
-            ,g[transform [Translate padding padding] ]
+        , g [ transform [ Translate 60 60 ] ]
+            [ yAxis yValues
+            , text_
+                [ x -30
+                , y -30
+
+                -- , fontFamily [ "Helvetica", "sans-serif" ]
+                , fontSize (px 20)
+
+                --, fontWeight FontWeightBold
+                ]
+                [ TypedSvg.Core.text "Jahr" ]
+            ]
+        , g [ transform [ Translate padding padding ] ]
             (List.map (point xScaleLocal yScaleLocal) model.data)
-             
         ]
+        
 
 point : ContinuousScale Float -> ContinuousScale Float -> Point -> Svg msg
 point scaleX scaleY xyPoint =
@@ -306,44 +298,14 @@ yAxis : List Float -> Svg msg
 yAxis values =
     Axis.left [ Axis.tickCount tickCount ] (yScale values)
 
-filterAndReduceCars : List Car -> XyData
-filterAndReduceCars my_cars =
-    XyData "city MPG" "retail Price" (List.filterMap maybePoint my_cars)
+filterAndReduceWines : List (String, Float, Float) -> XyData
+filterAndReduceWines my_winesList =
+    XyData "Preis" "Jahr" (List.map pointName my_winesList)
 
 
-pointName : String -> Int -> Int -> Point
-pointName x y z =
-    Point (x ++ ", " ++ String.fromInt y ++ ", " ++ String.fromInt z) (toFloat y) (toFloat z)
-
-
-maybePoint : Car -> Maybe Point
-maybePoint i =
-    Maybe.map3 pointName (Just i.vehicleName) i.cityMPG i.retailPrice
-
-
-main : Html msg
-main =
-    let
-        filteredCars =
-            filterAndReduceCars cars
-
-        numberCars =
-            List.length cars
-
-        numberFilterCars =
-            List.length filteredCars.data
-    in
-    Html.div []
-        [ Html.p []
-            [ Html.text "Original Car list:"
-            , Html.text <| String.fromInt numberCars
-            , Html.text ", reduced Car list:"
-            , Html.text <| String.fromInt numberFilterCars
-
-            --,Html.text <| String.fromList firstElement
-            ]
-        , scatterplot filteredCars
-        ]
+pointName : (String, Float, Float) -> Point
+pointName (x, y, z) =
+    Point x y z
 
 
 -- VIEW
@@ -351,11 +313,23 @@ view : Model -> Html Msg
 view model =
     case model of
         Failure ->
-            text "I was unable to load your book."
+            Html.text "Ich konnte Ihre Weine nicht öffnen."
 
         Loading ->
-            text "Loading..."
+            Html.text "Weine werden geöffnet..."
 
         Success l ->
-            Html.div [] <|
-                List.map (\fulltext -> pre [] [ renderList <| umwandeln <| csvString_to_data fulltext ]) l
+            let
+                weine =
+                    filterAndReduceWines <| weinListe l
+
+            in
+            Html.div []
+                [
+                    scatterplot weine
+                ]
+
+weinListe : List String -> List(String, Float, Float) 
+weinListe liste1 =
+ List.map (\fulltext ->  umwandeln2 <| csvString_to_data fulltext ) liste1
+    |> List.concat
