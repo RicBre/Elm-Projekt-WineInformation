@@ -327,3 +327,18 @@ main =
             ]
         , scatterplot filteredCars
         ]
+
+
+-- VIEW
+view : Model -> Html Msg
+view model =
+    case model of
+        Failure ->
+            text "I was unable to load your book."
+
+        Loading ->
+            text "Loading..."
+
+        Success l ->
+            Html.div [] <|
+                List.map (\fulltext -> pre [] [ renderList <| umwandeln <| csvString_to_data fulltext ]) l
