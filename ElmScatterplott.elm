@@ -150,13 +150,6 @@ defaultExtent =
 scatterplot : XyData -> Svg msg
 scatterplot model =
     let
-        filteredCarsHead =
-            filterAndReduceCars cars
-
-        kreisbeschriftung : String
-        kreisbeschriftung =
-            Maybe.withDefault "Keine Beschriftung"
-                (Maybe.map .pointName (List.head filteredCarsHead.data))
 
         xValues : List Float
         xValues =
@@ -164,7 +157,6 @@ scatterplot model =
 
         yValues : List Float
         yValues =
-            --[0, 200000]
             List.map .y model.data
 
         xScaleLocal : ContinuousScale Float
@@ -186,42 +178,49 @@ scatterplot model =
             }
     in
     svg [ viewBox 0 0 w h, TypedSvg.Attributes.width <| TypedSvg.Types.Percent 100, TypedSvg.Attributes.height <| TypedSvg.Types.Percent 100 ]
-        [ style [] [ TypedSvg.Core.text """
-            .point circle { stroke: rgba(0, 0, 0,0.4); fill: rgba(255, 255, 255,0.3); }
-            .point text { display: none; }
-            .point:hover circle { stroke: rgba(0, 0, 0,1.0); fill: rgb(118, 214, 78); }
-            .point:hover text { display: inline; }
-          """ ]
+        [ style [] 
+            [ 
+                TypedSvg.Core.text """
+                .point circle { stroke: rgba(0, 0, 0,0.4); fill: rgba(255, 255, 255,0.3); }
+                .point text { display: none; }
+                .point:hover circle { stroke: rgba(0, 0, 0,1.0); fill: rgb(118, 214, 78); }
+                .point:hover text { display: inline; }
+                """ 
+            ]
         
-         , g[ transform [ Translate (60) (390)]]
+            , g[ transform [Translate (60) (390] ]
             [
                 xAxis xValues
                 , text_
-                [ x (Scale.convert xScaleLocal labelPositions.x)
-                , y 35
-
-                -- , fontFamily [ "Helvetica", "sans-serif" ]
-                , fontSize (px 20)
-
-                --, fontWeight FontWeightBold
+                    [ x (Scale.convert xScaleLocal labelPositions.x)
+                    , y 35
+                    -- , fontFamily [ "Helvetica", "sans-serif" ]
+                    , fontSize (px 20)
+                    --, fontWeight FontWeightBold
                 ]
-                [ text filteredCarsHead.xDescription ]
+
+                [ 
+                    TypedSvg.Core.text "Preis" 
                 ]
+            ]
                 
-         ,g[transform [Translate(60) (60)]]
-         [
-             yAxis yValues
-             , text_
-                [ x -30
-                , y -30
-
-                -- , fontFamily [ "Helvetica", "sans-serif" ]
-                , fontSize (px 20)
-
-                --, fontWeight FontWeightBold
+            ,g[transform [Translate(60) (60)] ]
+            [
+                yAxis yValues
+                , text_
+                [   x -30
+                    , y -30
+                    -- , fontFamily [ "Helvetica", "sans-serif" ]
+                    , fontSize (px 20)
+                    --, fontWeight FontWeightBold
                 ]
-                [ text filteredCarsHead.yDescription ]
-             ]
+
+                [ 
+                    TypedSvg.Core.text "Jahr" 
+                ]
+            ]
+            ,g[transform [Translate padding padding] ]
+            (List.map (point xScaleLocal yScaleLocal) model.data)
              
         ]
 
