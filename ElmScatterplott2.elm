@@ -33,14 +33,21 @@ type Model
 type alias Status =
     {
         selectedWineType : WineType
-        selectedWineType2 : WineType
+      , selectedWineType2 : WineType
     }
 
 mySelectedWineType =
-    Status.selectedWineType
+    selectedWineType
 
 mySelectedWineTypeString =
-    wineTypeToString Status.selectedWineType
+    wineTypeToString mySelectedWineType
+
+mySelectedWineType2 =
+    selectedWineType2
+
+mySelectedWineTypeString2 =
+    wineTypeToString mySelectedWineType2
+
 
 -- Funktion mit csvString_to_data mySelectedWineTypeString 
 --Das sollten die Variablen in die csvString rein gegeben werden sollen
@@ -63,22 +70,22 @@ liste : List String
 liste =
     [ "cleansingWine.csv"]
 
-csvString_to_data : String -> List (String, Maybe Float, Maybe Float)
-csvString_to_data csvRaw =
+csvString_to_data : String -> String -> String -> List (String, Maybe Float, Maybe Float)
+csvString_to_data csvRaw var1 var2=
     Csv.parse csvRaw
-        |> Csv.Decode.decodeCsv decodeStockDay
+        |> Csv.Decode.decodeCsv (decodeStockDay var1 var2)
         |> Result.toMaybe
         |> Maybe.withDefault []
 
-decodeStockDay : Csv.Decode.Decoder (( String, Maybe Float, Maybe Float ) -> a) a
-decodeStockDay =
+decodeStockDay : String-> String -> Csv.Decode.Decoder (( String, Maybe Float, Maybe Float ) -> a) a
+decodeStockDay var1 var2=
     Csv.Decode.map (\a b c-> ( a, Just b, Just c ))
         (Csv.Decode.field "name" Ok
             |> Csv.Decode.andMap
-                (Csv.Decode.field "price" 
+                (Csv.Decode.field var1 
                     (String.toFloat >> Result.fromMaybe "error parsing string")
                     |> Csv.Decode.andMap
-                        (Csv.Decode.field "year" 
+                        (Csv.Decode.field var2 
                             (String.toFloat >> Result.fromMaybe "error parsing string")
                                 
                         )
@@ -395,7 +402,7 @@ view model =
         Success l ->
             let
                 weine =
-                    filterAndReduceWines <| weinListe l
+                    filterAndReduceWines <| weinListe l mySelectedWineTypeString mySelectedWineTypeString2
 
             in
             Html.div []
@@ -463,10 +470,10 @@ view model =
                 ]
              
 
-weinListe : List String -> List(String, Float, Float) 
-weinListe liste1 =
- List.map (\fulltext ->  umwandeln2 <| csvString_to_data fulltext ) liste1
-    |> List.concat
+weinListe : List String -> String-> String -> List(String, Float, Float) 
+weinListe liste1 var1 var2 =
+    List.map (\fulltext ->  umwandeln2 <| csvString_to_data fulltext var1 var2) liste1
+        |> List.concat
 
 
 type WineType
