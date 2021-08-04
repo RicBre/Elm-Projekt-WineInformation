@@ -3,9 +3,12 @@ module Main exposing (main)
 import Axis
 import Browser
 import Color
+import Csv
+import Csv.Decode
 import Html exposing (Html, a, li, ul)
 import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
+import Http
 import List.Extra
 import Path
 import Scale exposing (ContinuousScale)
@@ -49,6 +52,7 @@ type Msg
     | Tausch1
     | Tausch2
     | Tausch3
+    | GotText (Result Http.Error String)
 
 
 initialModel : Model
@@ -70,9 +74,63 @@ initialModel =
     , value1 = "City MPG" 
     , value2 = "Dealer Cost"
     , value3 = "Retail Price" 
-    , value4 = "Car Length"    
+    , value4 = "Car Length"
     }
 
+
+datenImport : () -> ( Cmd Msg )
+datenImport _ =
+    ( liste
+        |> List.map
+            (\datensatz ->
+                Http.get
+                    { url = "https://github.com/RicBre/Elm-Projekt-WineInformation/blob/main/" ++ datensatz
+                    , expect = Http.expectString GotText
+                    }
+            )
+        |> Cmd.batch
+    )
+
+liste : List String
+liste =
+    [ "WineInformationExcelAufbereitet.csv" ]
+
+csvString_to_data : String -> List ( String, Maybe Float, String )
+csvString_to_data csvRaw =
+    Csv.parse csvRaw
+        |> Csv.Decode.decodeCsv decodeStockDay
+        |> Result.toMaybe
+        |> Maybe.withDefault []
+
+
+decodeStockDay : Csv.Decode.Decoder (( String, Maybe Float, String ) -> a) a
+decodeStockDay =
+    Csv.Decode.map (\a b c -> ( a, Just b, c ))
+        (Csv.Decode.field "name" Ok
+            |> Csv.Decode.andMap
+                (Csv.Decode.field "price"
+                    (String.toFloat >> Result.fromMaybe "error parsing string")
+                    |> Csv.Decode.andMap
+                        (Csv.Decode.field "producer" Ok
+                        )
+                )
+        )
+
+
+umwandeln : List ( String, Maybe Float, String ) -> List ( String, String, String )
+umwandeln ganzerText =
+    List.map (\( a, b, c ) -> ( a, b |> Maybe.map String.fromFloat |> Maybe.withDefault "Kein Wert vorhanden", c )) ganzerText
+
+
+umwandeln2 : List ( String, Maybe Float ) -> String
+umwandeln2 ganzerText =
+    List.map Tuple.first ganzerText
+        |> String.concat
+
+renderList : List ( String, String, String ) -> Html msg
+renderList lst =
+    Html.ul []
+        (List.map (\( a, b, c ) -> Html.li [] [ text <| a ++ ", " ++ b ++ ", " ++ c ]) lst)
 
 main : Program () Model Msg
 main =
@@ -81,7 +139,9 @@ main =
         , view = view
         , update = update
         }
-
+-- Idee die Daten in dem Update auspacken lassen und dann einer Varible zuweisen lassen welche anschließend als quasi MultDimData verwendet werden kann
+--> Nur die Frage wie viele Spalten dem zugiesen werden können und ob diese dann einzeln ansprechbar sind
+--> Punkt wo die CSV Daten einfließen müssen ist MultiDimData -> Daten aus csv könnten ggf. auch in das Format gebracht werden
 
 update : Msg -> Model -> Model
 update msg model =
@@ -114,6 +174,14 @@ update msg model =
 
         AttributeRetailPrice ->
             { model | attributeValue = 2 }
+
+        GotText result ->
+            case result of
+                Ok fullText ->
+                    ( model)
+
+                Err _ ->
+                    ( model)
 
 
 view : Model -> Html Msg
@@ -174,18 +242,6 @@ my_access_function : Model -> List ( String, FilteredCar -> Int )
 my_access_function model =
             List.Extra.swapAt model.attributeValue model.zahlCityMPG model.accessWerte2
 
-
-
-
---accessWerte =
---        [ ( "CityMPG", .cityMPG )
---        , ( "dealerCost", .dealerCost )
---        , ( "retailPrice", .retailPrice )
---        , ( "carLen", .carLen )
---        ]
---type alias AccessFunction =
---    { attributeName : String, attributeWert : FilteredCar -> Int)
---accessWerte : List AccessFunction
 
 
 padding : Float
