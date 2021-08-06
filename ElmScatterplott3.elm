@@ -129,6 +129,7 @@ update msg model =
 
                 Err _ ->
                     ( model, Cmd.none )
+            
 
 
 -- SUBSCRIPTIONS
@@ -325,6 +326,45 @@ pointName : Wines -> Point
 pointName x =
     Point ( x.name ++ ", Price: " ++ (String.fromFloat x.price)++ ", Year: " ++ (String.fromFloat x.year)) x.price x.year
 
+type Winestai
+        = Name
+        | Price
+        | Year 
+
+
+type alias Status = 
+    {
+    status1 : Winestai
+    , status2 : Winestai
+    }
+
+zuweisungStatus1 st =
+    st.status1
+
+zuweisungStatus1String sta=
+    statusZuString sta.zuweisungStatus1
+
+statusZuString : Winestai -> String
+statusZuString winestatus =
+    case winestatus of
+        Price ->
+            "price"
+        Name ->
+            "name"
+        Year ->
+            "year"
+
+
+auswahlString1 : Winestai
+auswahlString1 =
+    (Price)
+
+--zuString : (Winestai, String) -> String
+zuString =
+    statusZuString auswahlString1 
+
+
+
 
 -- VIEW
 view : Model -> Html Msg
@@ -345,6 +385,7 @@ view model =
             Html.div []
                 [
                     scatterplot weine
+                    , Html.text zuString
                 ]
 
 weinListe : List String -> List Wines    
