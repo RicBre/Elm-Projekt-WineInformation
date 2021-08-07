@@ -21,15 +21,16 @@
                 {
                   "data": {
                     "id": "TestEssen"
-                  },
+                  }
+                },
+                {
                   "data":{
                     "id":"ZweitesTestEssen"
-                  },
-                  "data": { "id":"Altair" },
-                  "data": {"id":"Test"}
-
-                }
-                
+                  }
+                },
+                  
+                  {"data": { "id":"Altair" }},
+                  {"data": {"id":"Test"}} 
               ]
             },
             {

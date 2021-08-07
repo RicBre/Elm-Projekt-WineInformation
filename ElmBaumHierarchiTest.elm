@@ -24,7 +24,7 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init () =
     ( { tree = TreeDiagram.node "" [], errorMsg = "Loading ..." }
-    , Http.get { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Test.json", expect = Http.expectJson GotFlare treeDecoder }
+    , Http.get { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/WineInformationGeo.json", expect = Http.expectJson GotFlare treeDecoder }
     )
 
 
