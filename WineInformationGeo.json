@@ -27,10 +27,9 @@
                   "data":{
                     "id":"ZweitesTestEssen"
                   }
-                },
+                }
                   
-                  {"data": { "id":"Altair" }},
-                  {"data": {"id":"Test"}} 
+                   
               ]
             },
             {
@@ -83,7 +82,11 @@
             {
               "data": {
                 "id": "Armenia"
-              }
+              },
+              "children":[
+                {"data": { "id":"Altair" }},
+                {"data": {"id":"Test"}}
+              ]
             },
             {
               "data": {
