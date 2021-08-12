@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Test.ElmScatterplottCopy exposing (..)
 
 import Axis
 import Html exposing (Html,text, pre)

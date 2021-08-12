@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Test.ElmScatterplott2 exposing (..)
 
 import Axis
 import Html exposing (Html,text, pre)

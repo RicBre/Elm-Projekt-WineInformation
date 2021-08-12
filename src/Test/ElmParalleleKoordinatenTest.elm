@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Test.ElmParalleleKoordinatenTest exposing (main)
 
 import Axis
 import Browser
