@@ -69,7 +69,7 @@ type alias Weine =
     , alc : Float
     , temperatur : Float
     , suesse : Float
---    , saeurengehalt : Float
+    , saeurengehalt : Float
     , koerper : Float
     , gerbstoff : Float
     , preis : Float
@@ -84,7 +84,7 @@ decodeWeine =
             |> Csv.Decode.andMap (Csv.Decode.field "alc"(String.toFloat >> Result.fromMaybe "error parsing string"))
             |> Csv.Decode.andMap (Csv.Decode.field "temperatur"(String.toFloat >> Result.fromMaybe "error parsing string"))
             |> Csv.Decode.andMap (Csv.Decode.field "suesse"(String.toFloat >> Result.fromMaybe "error parsing string"))
---            |> Csv.Decode.andMap (Csv.Decode.field "saeurengehalt"(String.toFloat >> Result.fromMaybe "error parsing string"))
+            |> Csv.Decode.andMap (Csv.Decode.field "saeurengehalt"(String.toFloat >> Result.fromMaybe "error parsing string"))
             |> Csv.Decode.andMap (Csv.Decode.field "koerper"(String.toFloat >> Result.fromMaybe "error parsing string"))
             |> Csv.Decode.andMap (Csv.Decode.field "gerbstoff"(String.toFloat >> Result.fromMaybe "error parsing string"))
             |> Csv.Decode.andMap (Csv.Decode.field "preis"(String.toFloat >> Result.fromMaybe "error parsing string"))
@@ -350,7 +350,7 @@ view model =
                             , Html.button [onClick (ÄndereX (.alc, "Durchschnittlicher Alkoholgehalt"))][Html.text "Alkoholgehalt"]
                             , Html.button [onClick (ÄndereX (.temperatur, "Durchschnittliche Trinktemperatur"))][Html.text "Trinktemperatur"]
                             , Html.button [onClick (ÄndereX (.suesse, "Süße"))][Html.text "Süße"]
---                            , Html.button [onClick (ÄndereX (.saeurengehalt, "Säuregehalt"))][Html.text "Säuregehalt"]
+                            , Html.button [onClick (ÄndereX (.saeurengehalt, "Säuregehalt"))][Html.text "Säuregehalt"]
                             , Html.button [onClick (ÄndereX (.koerper, "Körper"))][Html.text "Körper"]
                             , Html.button [onClick (ÄndereX (.gerbstoff, "Gerbstoffe"))][Html.text "Gerbstoffe"]
                             , Html.button [onClick (ÄndereX (.preis, "Preis"))][Html.text "Preis"]
@@ -364,7 +364,7 @@ view model =
                             , Html.button [onClick (ÄndereY (.alc, "Durchschnittlicher Alkoholgehalt"))][Html.text "Alkoholgehalt"]
                             , Html.button [onClick (ÄndereY (.temperatur, "Durchschnittliche Trinktemperatur"))][Html.text "Trinktemperatur"]
                             , Html.button [onClick (ÄndereY (.suesse, "Süße"))][Html.text "Süße"]
---                            , Html.button [onClick (ÄndereY (.saeurengehalt, "Säuregehalt"))][Html.text "Säuregehalt"]
+                            , Html.button [onClick (ÄndereY (.saeurengehalt, "Säuregehalt"))][Html.text "Säuregehalt"]
                             , Html.button [onClick (ÄndereY (.koerper, "Körper"))][Html.text "Körper"]
                             , Html.button [onClick (ÄndereY (.gerbstoff, "Gerbstoffe"))][Html.text "Gerbstoffe"]
                             , Html.button [onClick (ÄndereY (.preis, "Preis"))][Html.text "Preis"]
