@@ -1,4 +1,4 @@
-module ElmParalleleKoordinaten exposing (..)
+module Entwicklung.ElmParalleleKoordinaten exposing (..)
 
 import Axis
 import Browser
@@ -58,7 +58,7 @@ holenVonCsv x =
         |> List.map
             (\datensatz ->
                 Http.get
-                    { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/" ++ datensatz
+                    { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/Aufbereitete%20Daten/" ++ datensatz
                     , expect = Http.expectString x
                     }
             )
@@ -66,7 +66,7 @@ holenVonCsv x =
 
 liste : List String
 liste =
-    [ "WineInformationExcelAufbereitet.csv"]
+    [ "WineInformationExcelAufbereitetKlein.csv"]
 
 csvString_to_data : String -> List Weine
 csvString_to_data csvRaw =

@@ -1,4 +1,4 @@
-module ElmScatterplott4 exposing (..)
+module Entwicklung.ElmScatterplott4 exposing (..)
 
 import Axis
 import Html exposing (Html,text, pre)
@@ -46,7 +46,7 @@ init _ =
         |> List.map
             (\datensatz ->
                 Http.get
-                    { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/" ++ datensatz
+                    { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/Aufbereitete%20Daten/" ++ datensatz
                     , expect = Http.expectString GotText
                     }
             )
@@ -55,7 +55,7 @@ init _ =
 
 liste : List String
 liste =
-    [ "WineInformationExcelAufbereitet.csv"]
+    [ "WineInformationExcelAufbereitetKlein.csv"]
 
 csvString_to_data : String -> List Weine
 csvString_to_data csvRaw =
