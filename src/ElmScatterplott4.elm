@@ -106,7 +106,7 @@ update msg model =
         GotText result ->
             case result of
                 Ok fullText ->
-                    ( Success <| { data = weineListe [ fullText ], xAAFunktion = .temperatur, yAAFunktion = .suesse , xName = "Temperatur", yName = "Süße"}, Cmd.none )
+                    ( Success <| { data = weineListe [ fullText ], xAAFunktion = .ml, yAAFunktion = .preis , xName = "Mililiter", yName = "Preis"}, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
