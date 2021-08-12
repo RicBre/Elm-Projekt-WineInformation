@@ -62,7 +62,7 @@ decodeStockDay =
                 (Csv.Decode.field "alc" 
                     (String.toFloat >> Result.fromMaybe "error parsing string")
                     |> Csv.Decode.andMap
-                        (Csv.Decode.field "ml" 
+                        (Csv.Decode.field "saeurengehalt" 
                             (String.toFloat >> Result.fromMaybe "error parsing string")
                                 
                         )
@@ -196,7 +196,7 @@ scatterplot model =
 
                 --, fontWeight FontWeightBold
                 ]
-                [ TypedSvg.Core.text "Preis" ]
+                [ TypedSvg.Core.text "X-Achse" ]
             ]
         , g [ transform [ Translate 60 60 ] ]
             [ yAxis yValues
@@ -209,7 +209,7 @@ scatterplot model =
 
                 --, fontWeight FontWeightBold
                 ]
-                [ TypedSvg.Core.text "Jahr" ]
+                [ TypedSvg.Core.text "Y-Achse" ]
             ]
         , g [ transform [ Translate padding padding ] ]
             (List.map (point xScaleLocal yScaleLocal) model.data)
