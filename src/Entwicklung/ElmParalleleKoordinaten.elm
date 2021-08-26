@@ -192,8 +192,8 @@ paralleleKoordinatenPlan w ar model =
                 List.indexedMap
                     (\i desc ->
                         text_
-                            [ fontFamily [ "sans-serif" ]
-                            , fontSize (Px 10)
+                            [ fontFamily [ "calibri" ]
+                            , fontSize (Px 12)
                             , x <| Scale.convert xSkala (toFloat i + 1)
                             , y <| abstand * 7 / 8
                             , textAnchor AnchorMiddle
