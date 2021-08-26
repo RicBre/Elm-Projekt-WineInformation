@@ -1,4 +1,4 @@
-module Zwischenstände.ElmScatterplott exposing (..)
+module Zwischenstände.ElmScatterplottEinfach exposing (..)
 
 import Axis
 import Html exposing (Html,text, pre)

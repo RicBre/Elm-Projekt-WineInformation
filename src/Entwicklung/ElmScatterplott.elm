@@ -1,4 +1,4 @@
-module Entwicklung.ElmScatterplott4 exposing (..)
+module Entwicklung.ElmScatterplott exposing (..)
 
 import Axis
 import Html exposing (Html,text, pre)
