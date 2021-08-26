@@ -2,38 +2,29 @@ module Entwicklung.ElmBaumHierarchi exposing (..)
 
 import Browser
 import Color
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
+import Html exposing (Html, div, text)
 import Http
 import Json.Decode
 import TreeDiagram
 import TreeDiagram.Svg
-import TypedSvg exposing (circle, g, line, path, rect, style, svg, text_)
-import TypedSvg.Attributes exposing (class, d, fill, fontFamily, fontSize, stroke, strokeWidth, textAnchor, transform, viewBox)
-import TypedSvg.Attributes.InPx exposing (cx, cy, height, r, width, x, x1, x2, y, y1, y2)
+import TypedSvg exposing (circle, g, line, text_)
+import TypedSvg.Attributes exposing (fill, stroke, textAnchor, transform, fontFamily, fontSize)
+import TypedSvg.Attributes.InPx exposing (cx, cy, r, x1, x2, y1, y2)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types as ST exposing (AnchorAlignment(..), Length(..), Paint(..), Transform(..))
 
 
--- Tree to draw
-
 
 type alias Model =
-    { tree : TreeDiagram.Tree String, errorMsg : String }
-
-init : () -> ( Model, Cmd Msg )
-init () =
-    ( { tree = TreeDiagram.node "" [], errorMsg = "Loading ..." }
-    , Http.get { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/Aufbereitete%20Daten/WineInformationGeoKleinKlein.json", expect = Http.expectJson GotFlare treeDecoder }
-    )
-
+    { baum : TreeDiagram.Tree String, errorMsg : String }
 
 type Msg
     = GotFlare (Result Http.Error (TreeDiagram.Tree String))
 
 
-treeDecoder : Json.Decode.Decoder (TreeDiagram.Tree String)
-treeDecoder =
+
+jsonDekodierung : Json.Decode.Decoder (TreeDiagram.Tree String)
+jsonDekodierung =
     Json.Decode.map2
         (\name children ->
             case children of
@@ -48,66 +39,41 @@ treeDecoder =
             Json.Decode.field "children" <|
                 Json.Decode.list <|
                     Json.Decode.lazy
-                        (\_ -> treeDecoder)
+                        (\_ -> jsonDekodierung)
         )
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        GotFlare (Ok newTree) ->
-            ( { model | tree = newTree, errorMsg = "No Error" }, Cmd.none )
-
-        GotFlare (Err error) ->
-            ( { model
-                | tree = TreeDiagram.node "" []
-                , errorMsg =
-                    case error of
-                        Http.BadBody newErrorMsg ->
-                            newErrorMsg
-
-                        _ ->
-                            "Some other Error"
-              }
-            , Cmd.none
-            )
-{-| Represent edges as straight lines.
--}
-drawLine : ( Float, Float ) -> Svg msg
-drawLine ( targetX, targetY ) =
+zeichneLinie : ( Float, Float ) -> Svg msg
+zeichneLinie ( zielX, zielY ) =
     line
-        [ x1 0, y1 0, x2 targetX, y2 targetY, stroke (ST.Paint Color.black) ]
+        [ x1 0, y1 0, x2 zielX, y2 zielY, stroke (ST.Paint Color.gray) ]
         []
 
 
-{-| Represent nodes as circles with the node value inside.
--}
-drawNode : String -> Svg msg
-drawNode n =
+zeichneKnoten : String -> Svg msg
+zeichneKnoten n =
     g
         []
         [ circle 
             [ r 16
-            , stroke (Paint Color.black)
-            , fill (Paint Color.white)
-            , cx 0
-            , cy 0 
+                , stroke (Paint Color.gray)
+                , fill (Paint Color.white)
+                , cx 0
+                , cy 0 
             ] 
             []
         , text_ 
             [ textAnchor AnchorEnd
-            , transform 
-                [ Translate -5.5 -20.5 
-                , Rotate 60.0 0.0 0.0
-                ]
+                , transform 
+                    [  Translate -5.5 -20.5 
+                     , Rotate 50.0 0.0 0.0
+                    ]
+            , fontFamily [ "calibri" ]
+            , fontSize (Px 12)
             ] 
             [ text n ]
         ]
 
-view : Model -> Html Msg
-view model =
-    div []
-        [ TreeDiagram.Svg.draw TreeDiagram.defaultTreeLayout drawNode drawLine model.tree --Html.text model.errorMsg
-        ]
+
 
 
 main : Program () Model Msg
@@ -118,3 +84,35 @@ main =
         , update = update
         , subscriptions = \m -> Sub.none
         }
+
+init : () -> ( Model, Cmd Msg )
+init () =
+    ( { baum = TreeDiagram.node "" [], errorMsg = "Loading ..." }
+    , Http.get { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/Aufbereitete%20Daten/WineInformationGeoKleinKlein.json", expect = Http.expectJson GotFlare jsonDekodierung }
+    )
+
+view : Model -> Html Msg
+view model =
+    div []
+        [ TreeDiagram.Svg.draw TreeDiagram.defaultTreeLayout zeichneKnoten zeichneLinie model.baum --Html.text model.errorMsg
+        ]
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        GotFlare (Ok newTree) ->
+            ( { model | baum = newTree, errorMsg = "No Error" }, Cmd.none )
+
+        GotFlare (Err error) ->
+            ( { model
+                | baum = TreeDiagram.node "" []
+                , errorMsg =
+                    case error of
+                        Http.BadBody newErrorMsg ->
+                            newErrorMsg
+
+                        _ ->
+                            "Some other Error"
+              }
+            , Cmd.none
+            )
