@@ -1,68 +1,34 @@
 module Entwicklung.ElmScatterplott exposing (..)
 
 import Axis
-import Html exposing (Html,text, pre)
+import Html exposing (Html)
 import Http
 import Scale exposing (ContinuousScale)
 import Statistics
-import TypedSvg exposing (circle, g, rect, style, svg, text_)
+import TypedSvg exposing (circle, g, style, svg, text_)
 import TypedSvg.Attributes exposing (class, fontFamily, fontSize, textAnchor, transform, viewBox)
-import TypedSvg.Attributes.InPx exposing (cx, cy, height, r, width, x, y)
-import TypedSvg.Core exposing (Svg, text)
+import TypedSvg.Attributes.InPx exposing (cx, cy, r, x, y)
+import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types exposing (AnchorAlignment(..), FontWeight(..), Length(..), Transform(..), px)
 import Csv
 import Csv.Decode
 import Browser
-import TypedSvg.Attributes exposing (name)
 import Html exposing (ul)
 import Html exposing (li)
 import Html.Events exposing (onClick)
 
---MAIN
-main =
-  Browser.element
-        { init = init
-        , update = update
-        , subscriptions = subscriptions
-        , view = view
-        }
 
---MODEL
+
 type Model
-  = Failure
-  | Loading
-  | Success 
-    { data : List Weine
+  = Fehlschlag
+  | Laden
+  | Erfolg 
+    { daten : List Weine
     , xAAFunktion : Weine -> Float
     , yAAFunktion : Weine -> Float
     , xName : String
     , yName : String
     }
-
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( Loading
-    , liste
-        |> List.map
-            (\datensatz ->
-                Http.get
-                    { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/Aufbereitete%20Daten/" ++ datensatz
-                    , expect = Http.expectString GotText
-                    }
-            )
-        |> Cmd.batch
-    )
-
-liste : List String
-liste =
-    [ "WineInformationExcelAufbereitetKlein.csv"]
-
-csvString_to_data : String -> List Weine
-csvString_to_data csvRaw =
-    Csv.parse csvRaw
-        |> Csv.Decode.decodeCsv decodeWeine
-        |> Result.toMaybe
-        |> Maybe.withDefault []
 
 type alias Weine =
     { name : String
@@ -77,8 +43,49 @@ type alias Weine =
     , ml : Float
     }
 
-decodeWeine : Csv.Decode.Decoder (Weine -> a) a
-decodeWeine =
+type Msg
+    = ErhalteText (Result Http.Error String)
+    | ÄndereX (Weine -> Float, String)
+    | ÄndereY (Weine -> Float, String)
+
+type alias Punkt =
+    { punktName : String, x : Float, y : Float }
+
+type alias XYDaten =
+    { xBeschreibung : String
+    , yBeschreibung : String
+    , daten : List Punkt
+    }
+
+
+
+holenVonCsv : (Result Http.Error String -> Msg) -> Cmd Msg
+holenVonCsv x = 
+    liste
+        |> List.map
+            (\datensatz ->
+                Http.get
+                    { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/Aufbereitete%20Daten/" ++ datensatz
+                    , expect = Http.expectString x
+                    }
+            )
+        |> Cmd.batch
+
+liste : List String
+liste =
+    [ "WineInformationExcelAufbereitetKlein.csv"]
+
+csvStringZuDaten : String -> List Weine
+csvStringZuDaten csvRoh =
+    Csv.parse csvRoh
+        |> Csv.Decode.decodeCsv dekodierenWeine
+        |> Result.toMaybe
+        |> Maybe.withDefault []
+
+
+
+dekodierenWeine : Csv.Decode.Decoder (Weine -> a) a
+dekodierenWeine =
     Csv.Decode.map Weine
         (Csv.Decode.field "name" Ok
             |> Csv.Decode.andMap (Csv.Decode.field "alc"(String.toFloat >> Result.fromMaybe "error parsing string"))
@@ -92,49 +99,16 @@ decodeWeine =
             |> Csv.Decode.andMap (Csv.Decode.field "ml"(String.toFloat >> Result.fromMaybe "error parsing string"))
         )
 
-
--- UPDATE
-type Msg
-    = GotText (Result Http.Error String)
-    | ÄndereX (Weine -> Float, String)
-    | ÄndereY (Weine -> Float, String)
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        GotText result ->
-            case result of
-                Ok fullText ->
-                    ( Success <| { data = weineListe [ fullText ], xAAFunktion = .ml, yAAFunktion = .preis , xName = "Mililiter", yName = "Preis"}, Cmd.none )
-
-                Err _ ->
-                    ( model, Cmd.none )
-        ÄndereX (x, a) ->
-            case model of
-                Success m ->
-                    ( Success <| { data = m.data, xAAFunktion = x, yAAFunktion = m.yAAFunktion, xName = a, yName = m.yName }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-        ÄndereY (y, a) ->
-            case model of
-                Success m ->
-                    ( Success <| { data = m.data, xAAFunktion = m.xAAFunktion, yAAFunktion = y, xName = m.xName, yName = a }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
 weineListe :List String -> List Weine
 weineListe liste1 =
-    List.map(\t -> csvString_to_data t) liste1
+    List.map(\t -> csvStringZuDaten t) liste1
         |> List.concat
+        
+filtertReduzierteWeine : List Weine -> (Weine -> String) -> (Weine -> Float) -> (Weine -> Float) -> String -> String -> XYDaten
+filtertReduzierteWeine weinliste a b c x y =
+    XYDaten x y (List.map (\n -> punktName n a b c x y) weinliste)
 
 
--- SUBSCRIPTIONS
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
 
 w : Float
 w =
@@ -146,8 +120,8 @@ h =
     450
 
 
-padding : Float
-padding =
+abstand : Float
+abstand =
     60
 
 
@@ -156,44 +130,108 @@ radius =
     5.0
 
 
-tickCount : Int
-tickCount =
+einteilungAchseZahl : Int
+einteilungAchseZahl =
     5
 
+xAchse : List Float -> Svg msg
+xAchse werte =
+    Axis.bottom [ Axis.tickCount einteilungAchseZahl ] (xSkala werte)
 
-defaultExtent : ( number, number1 )
-defaultExtent =
+
+yAchse : List Float -> Svg msg
+yAchse werte =
+    Axis.left [ Axis.tickCount einteilungAchseZahl ] (ySkala werte)
+
+xSkala : List Float -> ContinuousScale Float
+xSkala werte =
+    Scale.linear ( 0, w - 2 * abstand ) ( weiteErweiterung werte )
+
+ySkala : List Float -> ContinuousScale Float
+ySkala werte =
+    Scale.linear ( h - 2 * abstand, 0 ) ( weiteErweiterung werte )
+
+standartErweiterung : ( number, number1 )
+standartErweiterung =
     ( 0, 100 )
 
+addieren : (Float, Float) -> Float-> (Float, Float) 
+addieren (min, max) x =
+    if min <= 0 then
+        ( 0, max + x)
+    else 
+        (min - x, max + x)
 
-scatterplot : XyData -> Svg msg
+weiteErweiterung : List Float -> ( Float, Float )
+weiteErweiterung werte = 
+    let
+        ergebnis = 
+            Maybe.withDefault (0, 0)
+            (Statistics.extent werte)
+        
+        max =          
+            Maybe.withDefault (0)
+            (List.maximum werte)
+            
+        ergebnis1 = 
+            addieren ergebnis (toFloat(einteilungAchseZahl)*max/50)
+        
+        ergebnis2 = 
+            addieren ergebnis1 (0.0)       
+    in
+        ergebnis2
+
+punktName : Weine -> (Weine -> String) -> (Weine -> Float) -> (Weine -> Float) -> String -> String -> Punkt
+punktName weine u v x y z =
+    Punkt (u weine ++ ", " ++ y ++ ": " ++ String.fromFloat (v weine) ++ "," ++ z ++ ": " ++ String.fromFloat (x weine)) (v weine) (x weine)
+
+punkt : ContinuousScale Float -> ContinuousScale Float -> Punkt -> Svg msg
+punkt skalaX skalaY yxPunkt =
+    g
+        [
+            class["point"]
+            ,fontSize <| Px 15.0
+            ,fontFamily ["serif"]
+            ,transform
+                [
+                    Translate
+                    (Scale.convert skalaX yxPunkt.x)
+                    (Scale.convert skalaY yxPunkt.y)
+                ]
+        ]
+
+        [
+            circle [cx 0, cy 0, r 5] []
+            , text_ [x 10, y -20, textAnchor AnchorMiddle] [Html.text yxPunkt.punktName]
+        ]
+
+scatterplot : XYDaten -> Svg msg
 scatterplot model =
     let
+        xWerte : List Float
+        xWerte =
+            List.map .x model.daten
 
-        xValues : List Float
-        xValues =
-            List.map .x model.data
+        yWerte : List Float
+        yWerte =
+            List.map .y model.daten
 
-        yValues : List Float
-        yValues =
-            List.map .y model.data
+        xSkalaLokal : ContinuousScale Float
+        xSkalaLokal =
+            xSkala xWerte
 
-        xScaleLocal : ContinuousScale Float
-        xScaleLocal =
-            xScale xValues
+        ySkalaLokal : ContinuousScale Float
+        ySkalaLokal =
+            ySkala yWerte
 
-        yScaleLocal : ContinuousScale Float
-        yScaleLocal =
-            yScale yValues
-
-        half : ( Float, Float ) -> Float
-        half t =
+        halb : ( Float, Float ) -> Float
+        halb t =
             (Tuple.second t - Tuple.first t) / 2
 
-        labelPositions : { x : Float, y : Float }
-        labelPositions =
-            { x = wideExtent xValues |> half
-            , y = wideExtent yValues |> Tuple.second
+        labelPosition : { x : Float, y : Float }
+        labelPosition =
+            { x = weiteErweiterung xWerte |> halb
+            , y = weiteErweiterung yWerte |> Tuple.second
             }
     in
     svg [ viewBox 0 0 w h, TypedSvg.Attributes.width <| TypedSvg.Types.Percent 100, TypedSvg.Attributes.height <| TypedSvg.Types.Percent 100 ]
@@ -204,9 +242,9 @@ scatterplot model =
             .point:hover text { display: inline; }
           """ ]
         , g [ transform [ Translate 60 390 ] ]
-            [ xAxis xValues
+            [ xAchse xWerte
             , text_
-                [ x (Scale.convert xScaleLocal labelPositions.x)
+                [ x (Scale.convert xSkalaLokal labelPosition.x)
                 , y 35
 
                 -- , fontFamily [ "Helvetica", "sans-serif" ]
@@ -214,10 +252,10 @@ scatterplot model =
 
                 --, fontWeight FontWeightBold
                 ]
-                [ TypedSvg.Core.text model.xDescription ]
+                [ TypedSvg.Core.text model.xBeschreibung ]
             ]
         , g [ transform [ Translate 60 60 ] ]
-            [ yAxis yValues
+            [ yAchse yWerte
             , text_
                 [ x -30
                 , y -30
@@ -227,119 +265,45 @@ scatterplot model =
 
                 --, fontWeight FontWeightBold
                 ]
-                [ TypedSvg.Core.text model.yDescription ]
+                [ TypedSvg.Core.text model.yBeschreibung ]
             ]
-        , g [ transform [ Translate padding padding ] ]
-            (List.map (point xScaleLocal yScaleLocal) model.data)
+        , g [ transform [ Translate abstand abstand ] ]
+            (List.map (punkt xSkalaLokal ySkalaLokal) model.daten)
         ]
         
 
-point : ContinuousScale Float -> ContinuousScale Float -> Point -> Svg msg
-point scaleX scaleY xyPoint =
-    g
-        [
-            class["point"]
-            ,fontSize <| Px 15.0
-            ,fontFamily ["serif"]
-            ,transform
-                [
-                    Translate
-                    (Scale.convert scaleX xyPoint.x)
-                    (Scale.convert scaleY xyPoint.y)
-                ]
-        ]
 
-        [
-            circle [cx 0, cy 0, r 5] []
-            , text_ [x 10, y -20, textAnchor AnchorMiddle] [Html.text xyPoint.pointName]
-        ]
+main =
+  Browser.element
+        { init = init
+        , update = update
+        , subscriptions = subscriptions
+        , view = view
+        }
 
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( Laden
+    , holenVonCsv ErhalteText
+    )
 
-type alias Point =
-    { pointName : String, x : Float, y : Float }
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
-
-type alias XyData =
-    { xDescription : String
-    , yDescription : String
-    , data : List Point
-    }
-
-xScale : List Float -> ContinuousScale Float
-xScale values =
-    Scale.linear ( 0, w - 2 * padding ) ( wideExtent values )
-
-
-yScale : List Float -> ContinuousScale Float
-yScale values =
-    Scale.linear ( h - 2 * padding, 0 ) ( wideExtent values )
- 
-addieren : (Float, Float) -> Float-> (Float, Float) 
-addieren (min, max) shift =
-    if min <= 0 then
-        ( 0, max + shift)
-    else 
-        (min - shift, max + shift)
-    
- 
-wideExtent : List Float -> ( Float, Float )
-wideExtent values = 
-    let
-        result = 
-            Maybe.withDefault (0, 0)
-            (Statistics.extent values)
-        
-        max =          
-            Maybe.withDefault (0)
-            (List.maximum values)
-            
-        result1 = 
-            addieren result (toFloat(tickCount)*max/50)
-        
-        result2 = 
-            addieren result1 (0.0)
-        
-          
-    in
-     result2
-    
-     
-     
- 
- 
-xAxis : List Float -> Svg msg
-xAxis values =
-    Axis.bottom [ Axis.tickCount tickCount ] (xScale values)
-
-
-yAxis : List Float -> Svg msg
-yAxis values =
-    Axis.left [ Axis.tickCount tickCount ] (yScale values)
-
-filterAndReduceWines : List Weine -> (Weine -> String) -> (Weine -> Float) -> (Weine -> Float) -> String -> String -> XyData
-filterAndReduceWines weinliste a b c x y =
-    XyData x y (List.map (\n -> pointName n a b c x y) weinliste)
-
-
-pointName : Weine -> (Weine -> String) -> (Weine -> Float) -> (Weine -> Float) -> String -> String -> Point
-pointName weine u v x y z =
-    Point (u weine ++ ", " ++ y ++ ": " ++ String.fromFloat (v weine) ++ "," ++ z ++ ": " ++ String.fromFloat (x weine)) (v weine) (x weine)
-
-
--- VIEW
 view : Model -> Html Msg
 view model =
     case model of
-        Failure ->
+        Fehlschlag ->
             Html.text "Ich konnte Ihre Weine nicht öffnen."
 
-        Loading ->
+        Laden ->
             Html.text "Weine werden geöffnet..."
 
-        Success l ->
+        Erfolg l ->
             let
                 weine =
-                    filterAndReduceWines l.data .name l.xAAFunktion l.yAAFunktion l.xName l.yName
+                    filtertReduzierteWeine l.daten .name l.xAAFunktion l.yAAFunktion l.xName l.yName
 
             in
             Html.div []
@@ -374,3 +338,28 @@ view model =
                     ] 
                     ,   scatterplot weine
                 ]
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        ErhalteText result ->
+            case result of
+                Ok fullText ->
+                    ( Erfolg <| { daten = weineListe [ fullText ], xAAFunktion = .ml, yAAFunktion = .preis , xName = "Mililiter", yName = "Preis"}, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+        ÄndereX (x, a) ->
+            case model of
+                Erfolg m ->
+                    ( Erfolg <| { daten = m.daten, xAAFunktion = x, yAAFunktion = m.yAAFunktion, xName = a, yName = m.yName }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+        ÄndereY (y, a) ->
+            case model of
+                Erfolg m ->
+                    ( Erfolg <| { daten = m.daten, xAAFunktion = m.xAAFunktion, yAAFunktion = y, xName = m.xName, yName = a }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
