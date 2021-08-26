@@ -56,12 +56,12 @@ type Msg
     | Ändere3 (Weine -> Float, String)
     | Ändere4 (Weine -> Float, String)
 
-type alias MultiDimPoint =
-    { pointName : String, value : List Float }
+type alias MultiDimPunkt =
+    { punktName : String, value : List Float }
 
 type alias MultiDimData =
     { dimDescription : List String
-    , data : List (List MultiDimPoint)
+    , data : List (List MultiDimPunkt)
     }
 
 
@@ -83,8 +83,8 @@ liste =
     [ "WineInformationExcelAufbereitetKlein.csv"]
 
 csvStringZuDaten : String -> List Weine
-csvStringZuDaten csvRaw =
-    Csv.parse csvRaw
+csvStringZuDaten csvRoh =
+    Csv.parse csvRoh
         |> Csv.Decode.decodeCsv dekodierenWeine
         |> Result.toMaybe
         |> Maybe.withDefault []
@@ -128,17 +128,17 @@ standartErweiterung =
     ( 0, 100 )
 
 weiteErweiterung : List Float -> ( Float, Float )
-weiteErweiterung values =
+weiteErweiterung werte =
     let
-        closeExtent =
-            Statistics.extent values
+        nahErweiterung =
+            Statistics.extent werte
                 |> Maybe.withDefault standartErweiterung
 
-        extension =
-            (Tuple.second closeExtent - Tuple.first closeExtent) / toFloat (2 * einteilungAchseZahl)
+        erwiterung =
+            (Tuple.second nahErweiterung - Tuple.first nahErweiterung) / toFloat (2 * einteilungAchseZahl)
     in
-    ( Tuple.first closeExtent - extension |> max 0
-    , Tuple.second closeExtent + extension
+    ( Tuple.first nahErweiterung - erwiterung |> max 0
+    , Tuple.second nahErweiterung + erwiterung
     )
 
 paralleleKoordinatenPlan : Float -> Float -> MultiDimData -> Svg msg
@@ -204,10 +204,10 @@ paralleleKoordinatenPlan w ar model =
             ]
         ]
             ++ (let
-                    drawPoint p =
+                    zeichnePunkt p =
                         let
-                            linePath : Path.Path
-                            linePath =
+                            linienWeg : Path.Path
+                            linienWeg =
                                 List.map3
                                     (\desc s px ->
                                         Just
@@ -220,7 +220,7 @@ paralleleKoordinatenPlan w ar model =
                                     p
                                     |> Shape.line Shape.linearCurve
                         in
-                        Path.element linePath
+                        Path.element linienWeg
                             [ stroke <| Paint <| Color.rgba 0 0 0 0.8
                             , strokeWidth <| Px 0.5
                             , fill PaintNone
@@ -230,7 +230,7 @@ paralleleKoordinatenPlan w ar model =
                     |> List.map
                         (\dataset ->
                             g [ transform [ Translate (abstand - 1) abstand ] ]
-                                (List.map (.value >> drawPoint) dataset)
+                                (List.map (.value >> zeichnePunkt) dataset)
                         )
                )
 
@@ -274,7 +274,7 @@ view model =
                             [ List.map
                                 (\x ->
                                     [(a x), (b x), (c x), (d x)]
-                                        |> MultiDimPoint (e x)
+                                        |> MultiDimPunkt (e x)
                                 )
                                 listeWeine
                             ]
@@ -346,8 +346,8 @@ view model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ErhalteText result ->
-            case result of
+        ErhalteText ergebnis ->
+            case ergebnis of
                 Ok fullText ->
                     ( Erfolg <| { data = weineListe [ fullText ], ersteFunktion = .alc, zweiteFunktion = .temperatur, dritteFunktion = .suesse, vierteFunktion = .saeurengehalt , ersterName = "Alkohol", zweiterName = "Temperatur", dritterName = "Süße", vierterName = "Säuregehalt"}, Cmd.none )
 

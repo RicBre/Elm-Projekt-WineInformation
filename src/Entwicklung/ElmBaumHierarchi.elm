@@ -16,7 +16,9 @@ import TypedSvg.Types as ST exposing (AnchorAlignment(..), Length(..), Paint(..)
 
 
 type alias Model =
-    { baum : TreeDiagram.Tree String, errorMsg : String }
+    { baum : TreeDiagram.Tree String
+    , errorMsg : String 
+    }
 
 type Msg
     = GotFlare (Result Http.Error (TreeDiagram.Tree String))
