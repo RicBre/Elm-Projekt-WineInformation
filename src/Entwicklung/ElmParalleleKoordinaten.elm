@@ -6,7 +6,6 @@ import Color
 import Csv
 import Csv.Decode
 import Html exposing (Html, a, li, ul)
-import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
 import Http
 import List.Extra
@@ -14,27 +13,18 @@ import Path
 import Scale exposing (ContinuousScale)
 import Shape
 import Statistics
-import TypedSvg exposing (circle, g, line, path, rect, style, svg, text_)
-import TypedSvg.Attributes exposing (class, d, fill, fontFamily, fontSize, stroke, strokeWidth, textAnchor, transform, viewBox)
-import TypedSvg.Attributes.InPx exposing (cx, cy, height, r, width, x, x1, x2, y, y1, y2)
+import TypedSvg exposing (g, svg, text_)
+import TypedSvg.Attributes exposing (d, fill, fontFamily, fontSize, stroke, strokeWidth, textAnchor, transform, viewBox)
+import TypedSvg.Attributes.InPx exposing (x, y)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types exposing (AnchorAlignment(..), Length(..), Paint(..), Transform(..))
 
 
---MAIN
-main =
-  Browser.element
-        { init = init
-        , update = update
-        , subscriptions = subscriptions
-        , view = view
-        }
 
---MODEL
 type Model
-  = Failure
-  | Loading
-  | Success 
+  = Fehlschlag
+  | Laden
+  | Erfolg 
     { data : List Weine
     , ersteFunktion : Weine -> Float
     , zweiteFunktion : Weine -> Float
@@ -46,11 +36,35 @@ type Model
     , vierterName : String
     }
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( Loading
-    , holenVonCsv GotText
-    )
+type alias Weine =
+    { name : String
+    , alc : Float
+    , temperatur : Float
+    , suesse : Float
+    , saeurengehalt : Float
+    , koerper : Float
+    , gerbstoff : Float
+    , preis : Float
+    , jahr : Float
+    , ml : Float
+    }
+
+type Msg
+    = ErhalteText (Result Http.Error String)
+    | Ändere1 (Weine -> Float, String)
+    | Ändere2 (Weine -> Float, String)
+    | Ändere3 (Weine -> Float, String)
+    | Ändere4 (Weine -> Float, String)
+
+type alias MultiDimPoint =
+    { pointName : String, value : List Float }
+
+type alias MultiDimData =
+    { dimDescription : List String
+    , data : List (List MultiDimPoint)
+    }
+
+
 
 holenVonCsv : (Result Http.Error String -> Msg) -> Cmd Msg
 holenVonCsv x = 
@@ -68,28 +82,15 @@ liste : List String
 liste =
     [ "WineInformationExcelAufbereitetKlein.csv"]
 
-csvString_to_data : String -> List Weine
-csvString_to_data csvRaw =
+csvStringZuDaten : String -> List Weine
+csvStringZuDaten csvRaw =
     Csv.parse csvRaw
-        |> Csv.Decode.decodeCsv decodeWeine
+        |> Csv.Decode.decodeCsv dekodierenWeine
         |> Result.toMaybe
         |> Maybe.withDefault []
 
-type alias Weine =
-    { name : String
-    , alc : Float
-    , temperatur : Float
-    , suesse : Float
-    , saeurengehalt : Float
-    , koerper : Float
-    , gerbstoff : Float
-    , preis : Float
-    , jahr : Float
-    , ml : Float
-    }
-
-decodeWeine : Csv.Decode.Decoder (Weine -> a) a
-decodeWeine =
+dekodierenWeine : Csv.Decode.Decoder (Weine -> a) a
+dekodierenWeine =
     Csv.Decode.map Weine
         (Csv.Decode.field "name" Ok
             |> Csv.Decode.andMap (Csv.Decode.field "alc"(String.toFloat >> Result.fromMaybe "error parsing string"))
@@ -103,137 +104,72 @@ decodeWeine =
             |> Csv.Decode.andMap (Csv.Decode.field "ml"(String.toFloat >> Result.fromMaybe "error parsing string"))
         )
 
-
--- UPDATE
-type Msg
-    = GotText (Result Http.Error String)
-    | Ändere1 (Weine -> Float, String)
-    | Ändere2 (Weine -> Float, String)
-    | Ändere3 (Weine -> Float, String)
-    | Ändere4 (Weine -> Float, String)
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        GotText result ->
-            case result of
-                Ok fullText ->
-                    ( Success <| { data = weineListe [ fullText ], ersteFunktion = .alc, zweiteFunktion = .temperatur, dritteFunktion = .suesse, vierteFunktion = .saeurengehalt , ersterName = "Alkohol", zweiterName = "Temperatur", dritterName = "Süße", vierterName = "Säuregehalt"}, Cmd.none )
-
-                Err _ ->
-                    ( model, Cmd.none )
-        Ändere1 (x, a) ->
-            case model of
-                Success m ->
-                    ( Success <| { data = m.data, ersteFunktion = x, zweiteFunktion = m.zweiteFunktion, dritteFunktion = m.dritteFunktion, vierteFunktion = m.vierteFunktion , ersterName = a, zweiterName = m.zweiterName, dritterName = m.dritterName, vierterName = m.vierterName}, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-        Ändere2 (y, a) ->
-            case model of
-                Success m ->
-                    ( Success <| { data = m.data, ersteFunktion = m.ersteFunktion, zweiteFunktion = y, dritteFunktion = m.dritteFunktion, vierteFunktion = m.vierteFunktion , ersterName = m.ersterName, zweiterName = a, dritterName = m.dritterName, vierterName = m.vierterName}, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-        Ändere3 (z, a) ->
-            case model of
-                Success m ->
-                    ( Success <| { data = m.data, ersteFunktion = m.ersteFunktion, zweiteFunktion = m.zweiteFunktion, dritteFunktion = z, vierteFunktion = m.vierteFunktion , ersterName = m.ersterName, zweiterName = m.zweiterName, dritterName = a, vierterName = m.vierterName}, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-        Ändere4 (c, a) ->
-            case model of
-                Success m ->
-                    ( Success <| { data = m.data, ersteFunktion = m.ersteFunktion, zweiteFunktion = m.zweiteFunktion, dritteFunktion = m.dritteFunktion, vierteFunktion = c , ersterName = m.ersterName, zweiterName = m.zweiterName, dritterName = m.dritterName, vierterName = a}, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
 weineListe :List String -> List Weine
 weineListe liste1 =
-    List.map(\t -> csvString_to_data t) liste1
+    List.map(\t -> csvStringZuDaten t) liste1
         |> List.concat
-        
--- SUBSCRIPTIONS
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
 
-padding : Float
-padding =
+
+
+abstand : Float
+abstand =
     60
-
 
 radius : Float
 radius =
     5.0
 
-
-tickCount_ : Int
-tickCount_ =
+einteilungAchseZahl : Int
+einteilungAchseZahl =
     8
 
-
-defaultExtent : ( number, number1 )
-defaultExtent =
+standartErweiterung : ( number, number1 )
+standartErweiterung =
     ( 0, 100 )
 
-
-wideExtent : List Float -> ( Float, Float )
-wideExtent values =
+weiteErweiterung : List Float -> ( Float, Float )
+weiteErweiterung values =
     let
         closeExtent =
             Statistics.extent values
-                |> Maybe.withDefault defaultExtent
+                |> Maybe.withDefault standartErweiterung
 
         extension =
-            (Tuple.second closeExtent - Tuple.first closeExtent) / toFloat (2 * tickCount_)
+            (Tuple.second closeExtent - Tuple.first closeExtent) / toFloat (2 * einteilungAchseZahl)
     in
     ( Tuple.first closeExtent - extension |> max 0
     , Tuple.second closeExtent + extension
     )
 
-type alias MultiDimPoint =
-    { pointName : String, value : List Float }
-
-
-type alias MultiDimData =
-    { dimDescription : List String
-    , data : List (List MultiDimPoint)
-    }
-
-
-
-parallelCoodinatesPlot : Float -> Float -> MultiDimData -> Svg msg
-parallelCoodinatesPlot w ar model =
+paralleleKoordinatenPlan : Float -> Float -> MultiDimData -> Svg msg
+paralleleKoordinatenPlan w ar model =
     let
         h : Float
         h =
             w / ar
 
-        listTransformieren : List (List Float)
-        listTransformieren =
+        listeTransformieren : List (List Float)
+        listeTransformieren =
             model.data
                 |> List.concat
                 |> List.map .value
                 |> List.Extra.transpose
 
-        listWideExtent : List ( Float, Float )
-        listWideExtent =
-            listTransformieren |> List.map wideExtent
+        listeWeiteErweiterung : List ( Float, Float )
+        listeWeiteErweiterung =
+            listeTransformieren |> List.map weiteErweiterung
 
-        listScale =
-            List.map (Scale.linear ( h, 0 )) listWideExtent
+        listeSkala =
+            List.map (Scale.linear ( h, 0 )) listeWeiteErweiterung
 
-        listAxis =
-            List.map (Axis.left [ Axis.tickCount tickCount_ ]) listScale
+        listeAchse =
+            List.map (Axis.left [ Axis.tickCount einteilungAchseZahl ]) listeSkala
 
-        xScale =
+        xSkala =
             Scale.linear ( 0, w ) ( 1, List.length model.dimDescription |> toFloat )
     in
     svg
-        [ viewBox 0 0 (w + 2 * padding) (h + 2 * padding)
+        [ viewBox 0 0 (w + 2 * abstand) (h + 2 * abstand)
         , TypedSvg.Attributes.width <| TypedSvg.Types.Percent 90
         , TypedSvg.Attributes.height <| TypedSvg.Types.Percent 90
         ]
@@ -241,25 +177,25 @@ parallelCoodinatesPlot w ar model =
         [ TypedSvg.style []
             []
         , g [ TypedSvg.Attributes.class [ "parallelAxis" ] ]
-            [ g [ transform [ Translate (padding - 1) padding ] ] <|
+            [ g [ transform [ Translate (abstand - 1) abstand ] ] <|
                 List.indexedMap
                     (\i axis ->
                         g
                             [ transform
-                                [ Translate (Scale.convert xScale (toFloat i + 1)) 0
+                                [ Translate (Scale.convert xSkala (toFloat i + 1)) 0
                                 ]
                             ]
                             [ axis ]
                     )
-                    listAxis
-            , g [ transform [ Translate (padding - 1) 0 ] ] <|
+                    listeAchse
+            , g [ transform [ Translate (abstand - 1) 0 ] ] <|
                 List.indexedMap
                     (\i desc ->
                         text_
                             [ fontFamily [ "sans-serif" ]
                             , fontSize (Px 10)
-                            , x <| Scale.convert xScale (toFloat i + 1)
-                            , y <| padding * 7 / 8
+                            , x <| Scale.convert xSkala (toFloat i + 1)
+                            , y <| abstand * 7 / 8
                             , textAnchor AnchorMiddle
                             ]
                             [ TypedSvg.Core.text desc ]
@@ -275,12 +211,12 @@ parallelCoodinatesPlot w ar model =
                                 List.map3
                                     (\desc s px ->
                                         Just
-                                            ( Scale.convert xScale <| toFloat desc
+                                            ( Scale.convert xSkala <| toFloat desc
                                             , Scale.convert s px
                                             )
                                     )
                                     (List.range 1 (List.length model.dimDescription))
-                                    listScale
+                                    listeSkala
                                     p
                                     |> Shape.line Shape.linearCurve
                         in
@@ -293,21 +229,44 @@ parallelCoodinatesPlot w ar model =
                 model.data
                     |> List.map
                         (\dataset ->
-                            g [ transform [ Translate (padding - 1) padding ] ]
+                            g [ transform [ Translate (abstand - 1) abstand ] ]
                                 (List.map (.value >> drawPoint) dataset)
                         )
                )
 
+
+
+main =
+  Browser.element
+        { init = init
+        , update = update
+        , subscriptions = subscriptions
+        , view = view
+        }
+
+--MODEL
+
+
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( Laden
+    , holenVonCsv ErhalteText
+    )
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
 view : Model -> Html Msg
 view model =
     case model of
-        Failure ->
+        Fehlschlag ->
             Html.text "Ich konnte Ihre Weine nicht öffnen."
 
-        Loading ->
+        Laden ->
             Html.text "Weine werden geöffnet..."
 
-        Success l ->
+        Erfolg l ->
                     let
                         multiDimDaten : List Weine -> (Weine -> Float) -> (Weine -> Float) -> (Weine -> Float) -> (Weine -> Float) -> (Weine -> String) -> String -> String -> String -> String-> MultiDimData
                         multiDimDaten listeWeine a b c d e f g h i=
@@ -381,5 +340,44 @@ view model =
                                     , Html.button [onClick (Ändere4 (.ml, "Mililiter"))][Html.text "Mililiter"]
                                 ]
                              ]
-                                ,parallelCoodinatesPlot 600 2 plotDaten
+                                ,paralleleKoordinatenPlan 600 2 plotDaten
                         ]
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        ErhalteText result ->
+            case result of
+                Ok fullText ->
+                    ( Erfolg <| { data = weineListe [ fullText ], ersteFunktion = .alc, zweiteFunktion = .temperatur, dritteFunktion = .suesse, vierteFunktion = .saeurengehalt , ersterName = "Alkohol", zweiterName = "Temperatur", dritterName = "Süße", vierterName = "Säuregehalt"}, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+        Ändere1 (x, a) ->
+            case model of
+                Erfolg m ->
+                    ( Erfolg <| { data = m.data, ersteFunktion = x, zweiteFunktion = m.zweiteFunktion, dritteFunktion = m.dritteFunktion, vierteFunktion = m.vierteFunktion , ersterName = a, zweiterName = m.zweiterName, dritterName = m.dritterName, vierterName = m.vierterName}, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+        Ändere2 (y, a) ->
+            case model of
+                Erfolg m ->
+                    ( Erfolg <| { data = m.data, ersteFunktion = m.ersteFunktion, zweiteFunktion = y, dritteFunktion = m.dritteFunktion, vierteFunktion = m.vierteFunktion , ersterName = m.ersterName, zweiterName = a, dritterName = m.dritterName, vierterName = m.vierterName}, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+        Ändere3 (z, a) ->
+            case model of
+                Erfolg m ->
+                    ( Erfolg <| { data = m.data, ersteFunktion = m.ersteFunktion, zweiteFunktion = m.zweiteFunktion, dritteFunktion = z, vierteFunktion = m.vierteFunktion , ersterName = m.ersterName, zweiterName = m.zweiterName, dritterName = a, vierterName = m.vierterName}, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+        Ändere4 (c, a) ->
+            case model of
+                Erfolg m ->
+                    ( Erfolg <| { data = m.data, ersteFunktion = m.ersteFunktion, zweiteFunktion = m.zweiteFunktion, dritteFunktion = m.dritteFunktion, vierteFunktion = c , ersterName = m.ersterName, zweiterName = m.zweiterName, dritterName = m.dritterName, vierterName = a}, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
