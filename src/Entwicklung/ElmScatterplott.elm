@@ -190,8 +190,8 @@ punkt skalaX skalaY yxPunkt =
     g
         [
             class["point"]
-            ,fontSize <| Px 15.0
-            ,fontFamily ["serif"]
+            ,fontSize <| Px 12.0
+            ,fontFamily ["calibri"]
             ,transform
                 [
                     Translate
@@ -246,10 +246,8 @@ scatterplot model =
             , text_
                 [ x (Scale.convert xSkalaLokal labelPosition.x)
                 , y 35
-
-                -- , fontFamily [ "Helvetica", "sans-serif" ]
+                 , fontFamily [ "calibri" ]
                 , fontSize (px 20)
-
                 --, fontWeight FontWeightBold
                 ]
                 [ TypedSvg.Core.text model.xBeschreibung ]
@@ -259,10 +257,8 @@ scatterplot model =
             , text_
                 [ x -30
                 , y -30
-
-                -- , fontFamily [ "Helvetica", "sans-serif" ]
+                , fontFamily [ "calibri" ]
                 , fontSize (px 20)
-
                 --, fontWeight FontWeightBold
                 ]
                 [ TypedSvg.Core.text model.yBeschreibung ]
