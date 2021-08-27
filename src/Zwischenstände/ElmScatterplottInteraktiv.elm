@@ -46,7 +46,7 @@ init _ =
         |> List.map
             (\datensatz ->
                 Http.get
-                    { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/Aufbereitete%20Daten/" ++ datensatz
+                    { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/AufbereiteteDaten/" ++ datensatz
                     , expect = Http.expectString GotText
                     }
             )

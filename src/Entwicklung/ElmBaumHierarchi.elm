@@ -90,7 +90,7 @@ main =
 init : () -> ( Model, Cmd Msg )
 init () =
     ( { baum = TreeDiagram.node "" [], errorMsg = "Loading ..." }
-    , Http.get { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/Aufbereitete%20Daten/WineInformationGeoKleinKlein.json", expect = Http.expectJson GotFlare jsonDekodierung }
+    , Http.get { url = "https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/AufbereiteteDaten/WineInformationGeoKleinKlein.json", expect = Http.expectJson GotFlare jsonDekodierung }
     )
 
 view : Model -> Html Msg
