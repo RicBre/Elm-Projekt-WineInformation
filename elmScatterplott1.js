@@ -6150,7 +6150,7 @@ var $author$project$ElmScatterplott1$holenVonCsv = function (x) {
 				return $elm$http$Http$get(
 					{
 						expect: $elm$http$Http$expectString(x),
-						url: 'https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/Aufbereitete%20Daten/' + datensatz
+						url: 'https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/AufbereiteteDaten/' + datensatz
 					});
 			},
 			$author$project$ElmScatterplott1$liste));
