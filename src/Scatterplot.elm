@@ -1,4 +1,4 @@
-module ElmScatterplott1 exposing (..)
+module Scatterplot exposing (..)
 
 import Axis
 import Html exposing (Html)
