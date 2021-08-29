@@ -27,4 +27,4 @@ Folgende Pakete werden benötigt:
  Die [Orginadaten](https://www.kaggle.com/dev7halo/wine-information) wurden auf der Plattform Kaggle zur verfügung gestellt. Diese wurde innerhalb des Projektes weiterverarbeitet. Die weiterverarbeiten Daten sind innerhalb des Projekts unter [Aufbereitete Daten](Daten/AufbereiteteDaten) zu finden.
 
  ## Vorschau auf das Projekt
- Wird noch erstellt...
+Die Vorschau für dieses Projekt wurde mithilfe von GiutHubPages erstellt der Link ist folgender: https://ricbre.github.io/Elm-Projekt-WineInformation/.
