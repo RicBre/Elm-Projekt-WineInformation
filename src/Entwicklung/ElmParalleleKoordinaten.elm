@@ -14,7 +14,7 @@ import Scale exposing (ContinuousScale)
 import Shape
 import Statistics
 import TypedSvg exposing (g, svg, text_)
-import TypedSvg.Attributes exposing (d, fill, fontFamily, fontSize, stroke, strokeWidth, textAnchor, transform, viewBox)
+import TypedSvg.Attributes exposing (d, fill, fontFamily, fontSize, stroke, strokeWidth, textAnchor, transform, viewBox, class)
 import TypedSvg.Attributes.InPx exposing (x, y)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types exposing (AnchorAlignment(..), Length(..), Paint(..), Transform(..))
@@ -175,7 +175,14 @@ paralleleKoordinatenPlan w ar model =
         ]
     <|
         [ TypedSvg.style []
-            []
+            [
+                TypedSvg.Core.text """
+                .parallelerPunkt { stroke: rgba(1, 0, 0,0.2);}
+                .parallelerPunkt:hover {stroke: rgb(173, 255, 47); stroke-width: 2;} 
+                .parallelerPunkt text { display: none; }
+                .parallelerPunkt:hover text { display: inline; stroke: rgb(0, 0, 0); stroke-width: 0.1; font-size: small; font-family: calibri}  
+                """
+            ]
         , g [ TypedSvg.Attributes.class [ "parallelAxis" ] ]
             [ g [ transform [ Translate (abstand - 1) abstand ] ] <|
                 List.indexedMap
@@ -204,7 +211,7 @@ paralleleKoordinatenPlan w ar model =
             ]
         ]
             ++ (let
-                    zeichnePunkt p =
+                    zeichnePunkt p name beschreibung =
                         let
                             linienWeg : Path.Path
                             linienWeg =
@@ -220,17 +227,29 @@ paralleleKoordinatenPlan w ar model =
                                     p
                                     |> Shape.line Shape.linearCurve
                         in
-                        Path.element linienWeg
+                        g [class ["parallelerPunkt"]][
+                            Path.element linienWeg
                             [ stroke <| Paint <| Color.rgba 0 0 0 0.8
                             , strokeWidth <| Px 0.5
                             , fill PaintNone
+                            , class ["parallelerPunkt"]
                             ]
+                            , text_
+                                [ x 300
+                                , y -20
+                                --, fontSize (px 15)
+                                , TypedSvg.Attributes.textAnchor AnchorMiddle
+                                ]
+                                [ TypedSvg.Core.text (name++ (String.concat<|(List.map2(\a b-> ", " ++b++ ": "++ (String.fromFloat a))p beschreibung)))]
+                                
+                        ]
+                        
                 in
                 model.data
                     |> List.map
                         (\dataset ->
                             g [ transform [ Translate (abstand - 1) abstand ] ]
-                                (List.map (.value >> zeichnePunkt) dataset)
+                                (List.map (\a -> zeichnePunkt a.value a.punktName model.dimDescription) dataset)
                         )
                )
 
