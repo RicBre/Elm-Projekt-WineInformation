@@ -12,6 +12,7 @@ import TypedSvg.Attributes exposing (fill, stroke, textAnchor, transform, fontFa
 import TypedSvg.Attributes.InPx exposing (cx, cy, r, x1, x2, y1, y2)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types as ST exposing (AnchorAlignment(..), Length(..), Paint(..), Transform(..))
+import TreeDiagram exposing (node, TreeOrientation, topToBottom)
 
 
 
@@ -22,6 +23,14 @@ type alias Model =
 
 type Msg
     = GotFlare (Result Http.Error (TreeDiagram.Tree String))
+
+type alias TreeLayout =
+    { orientation : TreeOrientation
+    , levelHeight : Int
+    , subtreeDistance : Int
+    , siblingDistance : Int
+    , padding : Int
+    }
 
 
 
@@ -75,7 +84,8 @@ zeichneKnoten n =
             [ text n ]
         ]
 
-
+neuesBaumLayout =
+    TreeLayout topToBottom 300 160 20 120
 
 
 main : Program () Model Msg
@@ -96,7 +106,7 @@ init () =
 view : Model -> Html Msg
 view model =
     div []
-        [ TreeDiagram.Svg.draw TreeDiagram.defaultTreeLayout zeichneKnoten zeichneLinie model.baum --Html.text model.errorMsg
+        [ TreeDiagram.Svg.draw neuesBaumLayout zeichneKnoten zeichneLinie model.baum --Html.text model.errorMsg
         ]
 
 update : Msg -> Model -> ( Model, Cmd Msg )
