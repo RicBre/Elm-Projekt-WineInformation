@@ -237,7 +237,6 @@ paralleleKoordinatenPlan w ar model =
                             , text_
                                 [ x 300
                                 , y -20
-                                --, fontSize (px 15)
                                 , TypedSvg.Attributes.textAnchor AnchorMiddle
                                 ]
                                 [ TypedSvg.Core.text (name++ (String.concat<|(List.map2(\a b-> ", " ++b++ ": "++ (String.fromFloat a))p beschreibung)))]
