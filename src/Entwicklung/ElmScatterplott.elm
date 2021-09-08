@@ -248,7 +248,6 @@ scatterplot model =
                 , y 35
                  , fontFamily [ "calibri" ]
                 , fontSize (px 20)
-                --, fontWeight FontWeightBold
                 ]
                 [ TypedSvg.Core.text model.xBeschreibung ]
             ]
@@ -259,7 +258,6 @@ scatterplot model =
                 , y -30
                 , fontFamily [ "calibri" ]
                 , fontSize (px 20)
-                --, fontWeight FontWeightBold
                 ]
                 [ TypedSvg.Core.text model.yBeschreibung ]
             ]

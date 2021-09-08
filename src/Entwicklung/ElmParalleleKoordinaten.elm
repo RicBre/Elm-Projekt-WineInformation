@@ -262,9 +262,6 @@ main =
         , view = view
         }
 
---MODEL
-
-
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( Laden
