@@ -1,3 +1,17 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Entwicklung.ElmBaumHierarchi</title>
+  <style>body { padding: 0; margin: 0; }</style>
+</head>
+
+<body>
+
+<pre id="elm"></pre>
+
+<script>
+try {
 (function(scope){
 'use strict';
 
@@ -5319,7 +5333,7 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$BaumHierarchie$GotFlare = function (a) {
+var $author$project$Entwicklung$ElmBaumHierarchi$GotFlare = function (a) {
 	return {$: 'GotFlare', a: a};
 };
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
@@ -6136,7 +6150,7 @@ var $alex_tan$elm_tree_diagram$TreeDiagram$node = F2(
 		return A2($alex_tan$elm_tree_diagram$TreeDiagram$Node, val, children);
 	});
 var $elm$json$Json$Decode$string = _Json_decodeString;
-function $author$project$BaumHierarchie$cyclic$jsonDekodierung() {
+function $author$project$Entwicklung$ElmBaumHierarchi$cyclic$jsonDekodierung() {
 	return A3(
 		$elm$json$Json$Decode$map2,
 		F2(
@@ -6159,17 +6173,17 @@ function $author$project$BaumHierarchie$cyclic$jsonDekodierung() {
 				$elm$json$Json$Decode$list(
 					$elm$json$Json$Decode$lazy(
 						function (_v1) {
-							return $author$project$BaumHierarchie$cyclic$jsonDekodierung();
+							return $author$project$Entwicklung$ElmBaumHierarchi$cyclic$jsonDekodierung();
 						})))));
 }
 try {
-	var $author$project$BaumHierarchie$jsonDekodierung = $author$project$BaumHierarchie$cyclic$jsonDekodierung();
-	$author$project$BaumHierarchie$cyclic$jsonDekodierung = function () {
-		return $author$project$BaumHierarchie$jsonDekodierung;
+	var $author$project$Entwicklung$ElmBaumHierarchi$jsonDekodierung = $author$project$Entwicklung$ElmBaumHierarchi$cyclic$jsonDekodierung();
+	$author$project$Entwicklung$ElmBaumHierarchi$cyclic$jsonDekodierung = function () {
+		return $author$project$Entwicklung$ElmBaumHierarchi$jsonDekodierung;
 	};
 } catch ($) {
-	throw 'Some top-level definitions from `BaumHierarchie` are causing infinite recursion:\n\n  ┌─────┐\n  │    jsonDekodierung\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
-var $author$project$BaumHierarchie$init = function (_v0) {
+	throw 'Some top-level definitions from `Entwicklung.ElmBaumHierarchi` are causing infinite recursion:\n\n  ┌─────┐\n  │    jsonDekodierung\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
+var $author$project$Entwicklung$ElmBaumHierarchi$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			baum: A2($alex_tan$elm_tree_diagram$TreeDiagram$node, '', _List_Nil),
@@ -6177,7 +6191,7 @@ var $author$project$BaumHierarchie$init = function (_v0) {
 		},
 		$elm$http$Http$get(
 			{
-				expect: A2($elm$http$Http$expectJson, $author$project$BaumHierarchie$GotFlare, $author$project$BaumHierarchie$jsonDekodierung),
+				expect: A2($elm$http$Http$expectJson, $author$project$Entwicklung$ElmBaumHierarchi$GotFlare, $author$project$Entwicklung$ElmBaumHierarchi$jsonDekodierung),
 				url: 'https://raw.githubusercontent.com/RicBre/Elm-Projekt-WineInformation/main/Daten/AufbereiteteDaten/WineInformationGeoKleinKlein.json'
 			}));
 };
@@ -6185,7 +6199,7 @@ var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$BaumHierarchie$update = F2(
+var $author$project$Entwicklung$ElmBaumHierarchi$update = F2(
 	function (msg, model) {
 		if (msg.a.$ === 'Ok') {
 			var newTree = msg.a.a;
@@ -6213,8 +6227,6 @@ var $author$project$BaumHierarchie$update = F2(
 				$elm$core$Platform$Cmd$none);
 		}
 	});
-var $alex_tan$elm_tree_diagram$TreeDiagram$TopToBottom = {$: 'TopToBottom'};
-var $alex_tan$elm_tree_diagram$TreeDiagram$defaultTreeLayout = {levelHeight: 100, orientation: $alex_tan$elm_tree_diagram$TreeDiagram$TopToBottom, padding: 40, siblingDistance: 50, subtreeDistance: 80};
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$List$append = F2(
 	function (xs, ys) {
@@ -6792,6 +6804,13 @@ var $alex_tan$elm_tree_diagram$TreeDiagram$Svg$draw = F4(
 	function (layout, drawNode, drawLine, tree) {
 		return A5($alex_tan$elm_tree_diagram$TreeDiagram$draw_, $alex_tan$elm_tree_diagram$TreeDiagram$Svg$svgDrawable, layout, drawNode, drawLine, tree);
 	});
+var $author$project$Entwicklung$ElmBaumHierarchi$TreeLayout = F5(
+	function (orientation, levelHeight, subtreeDistance, siblingDistance, padding) {
+		return {levelHeight: levelHeight, orientation: orientation, padding: padding, siblingDistance: siblingDistance, subtreeDistance: subtreeDistance};
+	});
+var $alex_tan$elm_tree_diagram$TreeDiagram$TopToBottom = {$: 'TopToBottom'};
+var $alex_tan$elm_tree_diagram$TreeDiagram$topToBottom = $alex_tan$elm_tree_diagram$TreeDiagram$TopToBottom;
+var $author$project$Entwicklung$ElmBaumHierarchi$neuesBaumLayout = A5($author$project$Entwicklung$ElmBaumHierarchi$TreeLayout, $alex_tan$elm_tree_diagram$TreeDiagram$topToBottom, 250, 200, 30, 100);
 var $elm_community$typed_svg$TypedSvg$Types$AnchorEnd = {$: 'AnchorEnd'};
 var $elm_community$typed_svg$TypedSvg$Types$Paint = function (a) {
 	return {$: 'Paint', a: a};
@@ -6879,6 +6898,11 @@ var $elm_community$typed_svg$TypedSvg$Attributes$InPx$cy = function (value) {
 	return $elm_community$typed_svg$TypedSvg$Attributes$cy(
 		$elm_community$typed_svg$TypedSvg$Types$px(value));
 };
+var $avh4$elm_color$Color$RgbaSpace = F4(
+	function (a, b, c, d) {
+		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
+	});
+var $avh4$elm_color$Color$darkGray = A4($avh4$elm_color$Color$RgbaSpace, 186 / 255, 189 / 255, 182 / 255, 1.0);
 var $elm$core$Basics$composeL = F3(
 	function (g, f, x) {
 		return g(
@@ -6960,11 +6984,6 @@ var $elm_community$typed_svg$TypedSvg$Attributes$fontSize = function (length) {
 		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
 };
 var $elm_community$typed_svg$TypedSvg$g = $elm_community$typed_svg$TypedSvg$Core$node('g');
-var $avh4$elm_color$Color$RgbaSpace = F4(
-	function (a, b, c, d) {
-		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
-	});
-var $avh4$elm_color$Color$gray = A4($avh4$elm_color$Color$RgbaSpace, 211 / 255, 215 / 255, 207 / 255, 1.0);
 var $elm_community$typed_svg$TypedSvg$Attributes$r = function (length) {
 	return A2(
 		$elm_community$typed_svg$TypedSvg$Core$attribute,
@@ -7079,7 +7098,7 @@ var $elm_community$typed_svg$TypedSvg$Attributes$transform = function (transform
 			A2($elm$core$List$map, $elm_community$typed_svg$TypedSvg$TypesToStrings$transformToString, transforms)));
 };
 var $avh4$elm_color$Color$white = A4($avh4$elm_color$Color$RgbaSpace, 255 / 255, 255 / 255, 255 / 255, 1.0);
-var $author$project$BaumHierarchie$zeichneKnoten = function (n) {
+var $author$project$Entwicklung$ElmBaumHierarchi$zeichneKnoten = function (n) {
 	return A2(
 		$elm_community$typed_svg$TypedSvg$g,
 		_List_Nil,
@@ -7091,7 +7110,7 @@ var $author$project$BaumHierarchie$zeichneKnoten = function (n) {
 					[
 						$elm_community$typed_svg$TypedSvg$Attributes$InPx$r(16),
 						$elm_community$typed_svg$TypedSvg$Attributes$stroke(
-						$elm_community$typed_svg$TypedSvg$Types$Paint($avh4$elm_color$Color$gray)),
+						$elm_community$typed_svg$TypedSvg$Types$Paint($avh4$elm_color$Color$darkGray)),
 						$elm_community$typed_svg$TypedSvg$Attributes$fill(
 						$elm_community$typed_svg$TypedSvg$Types$Paint($avh4$elm_color$Color$white)),
 						$elm_community$typed_svg$TypedSvg$Attributes$InPx$cx(0),
@@ -7121,6 +7140,7 @@ var $author$project$BaumHierarchie$zeichneKnoten = function (n) {
 					]))
 			]));
 };
+var $avh4$elm_color$Color$darkGrey = A4($avh4$elm_color$Color$RgbaSpace, 186 / 255, 189 / 255, 182 / 255, 1.0);
 var $elm_community$typed_svg$TypedSvg$line = $elm_community$typed_svg$TypedSvg$Core$node('line');
 var $elm_community$typed_svg$TypedSvg$Attributes$x1 = function (position) {
 	return A2(
@@ -7162,7 +7182,7 @@ var $elm_community$typed_svg$TypedSvg$Attributes$InPx$y2 = function (value) {
 	return $elm_community$typed_svg$TypedSvg$Attributes$y2(
 		$elm_community$typed_svg$TypedSvg$Types$px(value));
 };
-var $author$project$BaumHierarchie$zeichneLinie = function (_v0) {
+var $author$project$Entwicklung$ElmBaumHierarchi$zeichneLinie = function (_v0) {
 	var zielX = _v0.a;
 	var zielY = _v0.b;
 	return A2(
@@ -7174,27 +7194,45 @@ var $author$project$BaumHierarchie$zeichneLinie = function (_v0) {
 				$elm_community$typed_svg$TypedSvg$Attributes$InPx$x2(zielX),
 				$elm_community$typed_svg$TypedSvg$Attributes$InPx$y2(zielY),
 				$elm_community$typed_svg$TypedSvg$Attributes$stroke(
-				$elm_community$typed_svg$TypedSvg$Types$Paint($avh4$elm_color$Color$gray))
+				$elm_community$typed_svg$TypedSvg$Types$Paint($avh4$elm_color$Color$darkGrey))
 			]),
 		_List_Nil);
 };
-var $author$project$BaumHierarchie$view = function (model) {
+var $author$project$Entwicklung$ElmBaumHierarchi$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
 		_List_fromArray(
 			[
-				A4($alex_tan$elm_tree_diagram$TreeDiagram$Svg$draw, $alex_tan$elm_tree_diagram$TreeDiagram$defaultTreeLayout, $author$project$BaumHierarchie$zeichneKnoten, $author$project$BaumHierarchie$zeichneLinie, model.baum)
+				A4($alex_tan$elm_tree_diagram$TreeDiagram$Svg$draw, $author$project$Entwicklung$ElmBaumHierarchi$neuesBaumLayout, $author$project$Entwicklung$ElmBaumHierarchi$zeichneKnoten, $author$project$Entwicklung$ElmBaumHierarchi$zeichneLinie, model.baum)
 			]));
 };
-var $author$project$BaumHierarchie$main = $elm$browser$Browser$element(
+var $author$project$Entwicklung$ElmBaumHierarchi$main = $elm$browser$Browser$element(
 	{
-		init: $author$project$BaumHierarchie$init,
+		init: $author$project$Entwicklung$ElmBaumHierarchi$init,
 		subscriptions: function (m) {
 			return $elm$core$Platform$Sub$none;
 		},
-		update: $author$project$BaumHierarchie$update,
-		view: $author$project$BaumHierarchie$view
+		update: $author$project$Entwicklung$ElmBaumHierarchi$update,
+		view: $author$project$Entwicklung$ElmBaumHierarchi$view
 	});
-_Platform_export({'BaumHierarchie':{'init':$author$project$BaumHierarchie$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+_Platform_export({'Entwicklung':{'ElmBaumHierarchi':{'init':$author$project$Entwicklung$ElmBaumHierarchi$main(
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}}});}(this));
+
+  var app = Elm.Entwicklung.ElmBaumHierarchi.init({ node: document.getElementById("elm") });
+}
+catch (e)
+{
+  // display initialization errors (e.g. bad flags, infinite recursion)
+  var header = document.createElement("h1");
+  header.style.fontFamily = "monospace";
+  header.innerText = "Initialization Error";
+  var pre = document.getElementById("elm");
+  document.body.insertBefore(header, pre);
+  pre.innerText = e;
+  throw e;
+}
+</script>
+
+</body>
+</html>
