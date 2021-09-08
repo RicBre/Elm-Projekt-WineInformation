@@ -56,7 +56,7 @@ jsonDekodierung =
 zeichneLinie : ( Float, Float ) -> Svg msg
 zeichneLinie ( zielX, zielY ) =
     line
-        [ x1 0, y1 0, x2 zielX, y2 zielY, stroke (ST.Paint Color.gray) ]
+        [ x1 0, y1 0, x2 zielX, y2 zielY, stroke (ST.Paint Color.darkGrey) ]
         []
 
 
@@ -66,7 +66,7 @@ zeichneKnoten n =
         []
         [ circle 
             [ r 16
-                , stroke (Paint Color.gray)
+                , stroke (Paint Color.darkGray)
                 , fill (Paint Color.white)
                 , cx 0
                 , cy 0 
@@ -85,7 +85,7 @@ zeichneKnoten n =
         ]
 
 neuesBaumLayout =
-    TreeLayout topToBottom 300 160 20 120
+    TreeLayout topToBottom 250 200 30 100
 
 
 main : Program () Model Msg
