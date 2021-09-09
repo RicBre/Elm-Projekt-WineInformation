@@ -21,6 +21,7 @@ Folgende wesentliche Anforderungen gab es dabei an diese Arbeit:
      - Bäume und Graphen  
 3. Datensatz wurde Vorgeben
 4. Visualisierungen sollten zu einer Visualisierungsanwendung verbunden werden
+
 In diesem Projekt wurde sich für den Scatterplot, die Paralellen Koordinaten und die Baumhierarchie entschieden.
 Die Verbindung der verschiedenen Visualisierungen erfolgte mithilfe des übersetzten Elm-Codes in Java Script und HTML. 
 
