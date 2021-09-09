@@ -28,7 +28,7 @@ Die Verbindung der verschiedenen Visualisierungen erfolgte mithilfe des überset
 Die Vorschau für dieses Projekt wurde mithilfe von [GitHub Pages](https://pages.github.com/) erstellt und ist unter folgendem Link erreichbar: https://ricbre.github.io/Elm-Projekt-WineInformation/.
 
 ## Datenherkunft
- Die [Originaldaten](https://www.kaggle.com/dev7halo/wine-information) wurden auf der Plattform Kaggle zur Verfügung gestellt. Diese wurde innerhalb des Projektes weiterverarbeitet. Die weiterverarbeiten Daten sind innerhalb des Projekts unter [Aufbereitete Daten](Daten/AufbereiteteDaten) zu finden. Die Visualisierungen verwenden dabei die Datei [WineInformationExcelAufbereitetKlein](Daten/AufbereiteteDaten/WineInformationExcelAufbereitetKlein.xlsx)
+ Die [Originaldaten](https://www.kaggle.com/dev7halo/wine-information) wurden auf der Plattform Kaggle zur Verfügung gestellt. Diese wurde innerhalb des Projektes weiterverarbeitet. Die weiterverarbeiten Daten sind innerhalb des Projekts unter [Aufbereitete Daten](Daten/AufbereiteteDaten) zu finden. Die Visualisierungen verwenden dabei die Datei [WineInformationExcelAufbereitetKlein](Daten/AufbereiteteDaten/WineInformationExcelAufbereitetKlein.xlsx).
 
 ## Technologien
 In diesem Projekt wurden folgende Programmiersprachen eingesetzt:
@@ -64,8 +64,9 @@ Genauere Informationen zum `elm reactor` sind hier zu [finden](https://guide.elm
 ### Übersetzten der Elm Dateien in HTML-Webseiten
 Falls der Elm-Code in eine Webseite mit eingebunden JavaScript übersetzt werden sollte, muss innerhalb des Terminals der Befehl `elm make [DATEINAME]` eingegeben werden.
 Anschließend wird automatisch eine entsprechende HTML Datei erstellt.
-Genauere Informationen zu `elm make` sind hier zu [finden](https://hackage.haskell.org/package/elm-make)
+Genauere Informationen zu `elm make` sind hier zu [finden](https://hackage.haskell.org/package/elm-make).
 
 ## Quellen
 - [Aufbau der Readme](https://bulldogjob.com/news/449-how-to-write-a-good-readme-for-your-github-project)
 - [Readme Syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+- [Originaldaten](https://www.kaggle.com/dev7halo/wine-information)
